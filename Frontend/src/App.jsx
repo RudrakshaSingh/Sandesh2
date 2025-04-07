@@ -1,8 +1,15 @@
 import React from 'react'
+import { Route, Routes } from "react-router-dom";
+import UserLogin from './Pages/User/UserLogin';
+import Home from './Pages/Home';
+
 
 function App() {
   return (
-    <div className='bg-red-900 p-5'>App</div>
+    <Routes>
+      <Route path="/" element={<Home/>} />
+      <Route path="/user/login" element={<UserLogin/>} />
+    </Routes>
   )
 }
 
