@@ -8,7 +8,7 @@ const errorMiddleware = (err, req, res, next) => {
       }
       return res.status(err.statusCode).json(err.toJSON());
    }
-   return res.status(500).json(new ApiResponse(500, null, "Internal Server Error"));
+   return res.status(500).json(new ApiResponse(500, null, err.message || "Internal Server Error"));
 };
 
 export default errorMiddleware;

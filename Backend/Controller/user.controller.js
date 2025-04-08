@@ -63,3 +63,62 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 
 	return res.status(201).json(new ApiResponse(201, "User created successfully", userWithoutPassword));
 });
+
+export const loginUser = asyncHandler(async (req, res, next) => {
+	const { email, password } = req.body;
+  
+	// Validate email and password are provided
+	if (!email || !password) {
+	  return next(new ApiError(400, "Email and password are required"));
+	}
+  
+	// Find user by email
+	const user = await userModel.findOne({ email }).select("+password");
+  
+	// Check if user exists
+	if (!user) {
+	  return next(new ApiError(404, "User not found"));
+	}
+  
+	// Verify password
+	const isPasswordValid = await user.comparePassword(password);
+	if (!isPasswordValid) {
+	  return next(new ApiError(401, "Invalid credentials"));
+	}
+  
+	// Generate access and refresh tokens
+	const accessToken = user.generateAccessToken();
+	const refreshToken = user.generateRefreshToken();
+  
+	// Save refresh token to user document
+	user.refreshToken = refreshToken;
+	await user.save({ validateBeforeSave: false });
+  
+	// Set cookies options
+	const cookieOptions = {
+	  httpOnly: true,
+	  secure: process.env.NODE_ENV === "production",
+	};
+  
+	// Remove password from response
+	const userWithoutPassword = user.toObject();
+	delete userWithoutPassword.password;
+	delete userWithoutPassword.refreshToken;
+  
+	// Set cookies and send response
+	return res
+	  .status(200)
+	  .cookie("accessToken", accessToken, cookieOptions)
+	  .cookie("refreshToken", refreshToken, {
+		...cookieOptions,
+		// Set longer expiry for refresh token
+		expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+	  })
+	  .json(
+		new ApiResponse(200, "User logged in successfully", {
+		  user: userWithoutPassword,
+		  accessToken,
+		  refreshToken,
+		})
+	  );
+});

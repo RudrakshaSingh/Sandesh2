@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const userSchema = new mongoose.Schema(
    {
@@ -35,6 +36,9 @@ const userSchema = new mongoose.Schema(
       address: {
          type: String,
          trim: true,
+      },
+      refreshToken: {
+         type: String,
       }
    },
    {
@@ -46,7 +50,7 @@ const userSchema = new mongoose.Schema(
 userSchema.pre("save", async function(next) {
    // Only hash the password if it's modified (or new)
    if (!this.isModified("password")) return next();
-   
+       
    try {
       // Generate a salt
       const salt = await bcrypt.genSalt(10);
@@ -60,8 +64,36 @@ userSchema.pre("save", async function(next) {
 });
 
 // Method to compare password
-userSchema.methods.isPasswordCorrect = async function(password) {
+userSchema.methods.comparePassword = async function(password) {
    return await bcrypt.compare(password, this.password);
+};
+
+// Method to generate access token
+userSchema.methods.generateAccessToken = function() {
+   return jwt.sign(
+      {
+         _id: this._id,
+         email: this.email,
+         fullname: this.fullname
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+         expiresIn: process.env.ACCESS_TOKEN_EXPIRY || "1d"
+      }
+   );
+};
+
+// Method to generate refresh token
+userSchema.methods.generateRefreshToken = function() {
+   return jwt.sign(
+      {
+         _id: this._id,
+      },
+      process.env.REFRESH_TOKEN_SECRET,
+      {
+         expiresIn: process.env.REFRESH_TOKEN_EXPIRY || "7d"
+      }
+   );
 };
 
 const userModel = mongoose.model("user", userSchema);
