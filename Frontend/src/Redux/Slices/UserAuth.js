@@ -15,7 +15,7 @@ export const registerUser = createAsyncThunk(
     'user/register',
     async (userData, { rejectWithValue }) => {
         try {
-            const response = await axiosInstance.post('/user/register', userData);
+            const response = await axiosInstance.post('/users/register', userData);
             if (response.status === 201) {
                 toast.success('User Created Successfully');
             }
@@ -23,6 +23,37 @@ export const registerUser = createAsyncThunk(
         } catch (error) {
             toast.error(error.response?.data?.message || 'User Creation Failed');
             return rejectWithValue(error.response?.data || { message: 'Registration failed' });
+        }
+    }
+);
+export const loginUser = createAsyncThunk(
+    'user/login',
+    async (userData, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.post('/users/login', userData);
+            if (response.status === 200) {
+                toast.success('Login Successful');
+            }
+            return response.data;
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Login Failed');
+            return rejectWithValue(error.response?.data || { message: 'Login failed' });
+
+        }
+    }
+);
+export const logoutUser = createAsyncThunk(
+    'user/logout',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.post('/users/logout');
+            if (response.status === 200) {
+                toast.success('Logout Successful');
+            }
+            return response.data;
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Logout Failed');
+            return rejectWithValue(error.response?.data || { message: 'Logout failed' });
         }
     }
 );
