@@ -1,7 +1,9 @@
 import ApiError from "../Helpers/ApiError.js";
 import ApiResponse from "../Helpers/ApiResponse.js";
 import asyncHandler from "../Helpers/AsyncHandler.js";
+import uploadOnCloudinary from "../Helpers/Cloudinary.js";
 import userModel from "../Models/user.model.js";
+import jwt from "jsonwebtoken";
 
 export const registerUser = asyncHandler(async (req, res, next) => {
 	const { firstname, lastname, email, password, mobileNumber, address } = req.body;
@@ -45,6 +47,19 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 		return next(new ApiError(400, "User email already exists"));
 	}
 
+	// Handle profile image upload
+	const profilePictureLocalPath = req.file?.path;
+	let profileImageUrl = process.env.DEFAULT_PROFILE_IMAGE_URL;
+	
+	if (profilePictureLocalPath) {
+		// Upload to Cloudinary
+		const profileImage = await uploadOnCloudinary(profilePictureLocalPath);
+		if (!profileImage) {
+			return next(new ApiError(400, "Error uploading profile picture"));
+		}
+		profileImageUrl = profileImage.url;
+	}
+
 	// Create user - the password will be hashed automatically by the pre-save hook
 	const user = await userModel.create({
 		fullname: {
@@ -55,6 +70,7 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 		password,
 		mobileNumber,
 		address,
+		profileImage: profileImageUrl // Add profile image URL to the user document
 	});
 
 	// Remove password from response
@@ -121,4 +137,65 @@ export const loginUser = asyncHandler(async (req, res, next) => {
 		  refreshToken,
 		})
 	  );
+});
+
+export const refreshAccessToken = asyncHandler(async (req, res, next) => {
+  // Get refresh token from cookie or request body
+  const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
+
+  // Check if refresh token exists
+  if (!incomingRefreshToken) {
+    return next(new ApiError(401, "Unauthorized request: Refresh token not found"));
+  }
+
+  try {
+    // Verify the refresh token
+    const decodedToken = jwt.verify(
+      incomingRefreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+
+    // Find user with this refresh token
+    const user = await userModel.findById(decodedToken._id);
+    if (!user) {
+      return next(new ApiError(401, "Invalid refresh token or user not found"));
+    }
+
+    // Check if incoming refresh token matches stored token
+    if (incomingRefreshToken !== user.refreshToken) {
+      return next(new ApiError(401, "Refresh token is expired or used"));
+    }
+
+    // Generate new tokens
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+
+    // Update refresh token in database
+    user.refreshToken = refreshToken;
+    await user.save({ validateBeforeSave: false });
+
+    // Set cookie options
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    };
+
+    // Send response with new tokens
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, cookieOptions)
+      .cookie("refreshToken", refreshToken, {
+        ...cookieOptions,
+        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      })
+      .json(
+        new ApiResponse(200, "Access token refreshed", {
+          accessToken,
+          refreshToken,
+        })
+      );
+  } catch (error) {
+    // Handle JWT verification errors
+    return next(new ApiError(401, error?.message || "Invalid refresh token"));
+  }
 });
