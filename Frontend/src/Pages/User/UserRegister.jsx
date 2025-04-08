@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Upload, User, Mail, Key, Phone, MapPin, Camera } from "lucide-react";
 import Webcam from "react-webcam";
+import { useDispatch, useSelector } from "react-redux";
+import { registerUser, resetUserState } from "../../Redux/Slices/UserAuth";
 
 // Constants
 const videoConstraints = {
@@ -25,7 +27,27 @@ function UserRegister() {
     capturedImage: false,
   });
 
+  const [errors, setErrors] = useState({});
+
+  // Get Redux state and dispatch
+  const dispatch = useDispatch();
+  const { loading, success, error } = useSelector((state) => state.userAuth);
+
   const navigate = useNavigate();
+
+  // Reset user state when component unmounts
+  useEffect(() => {
+    return () => {
+      dispatch(resetUserState());
+    };
+  }, [dispatch]);
+
+  // Redirect on successful registration
+  useEffect(() => {
+    if (success) {
+      navigate("/users/login");
+    }
+  }, [success, navigate]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -64,6 +86,66 @@ function UserRegister() {
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
+
+    // Clear error for this field when user makes changes
+    if (errors[id]) {
+      setErrors((prev) => ({ ...prev, [id]: "" }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Validate firstname
+    if (!formData.firstName || formData.firstName.trim().length < 3) {
+      newErrors.firstName = "First name is required and must be at least 3 characters long";
+    }
+
+    // Validate lastname
+    if (!formData.lastName || formData.lastName.trim().length < 3) {
+      newErrors.lastName = "Last name is required and must be at least 3 characters long";
+    }
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email || !emailRegex.test(formData.email)) {
+      newErrors.email = "Please provide a valid email";
+    }
+
+    // Validate password
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[a-zA-Z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$/;
+    if (!formData.password || !passwordRegex.test(formData.password)) {
+      newErrors.password = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character";
+    }
+
+    // Validate password confirmation (frontend only validation)
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords don't match";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    // Prepare data for API (without confirmPassword)
+    const userData = {
+      firstname: formData.firstName,
+      lastname: formData.lastName,
+      email: formData.email,
+      password: formData.password,
+      mobileNumber: formData.mobileNumber,
+      address: formData.address
+    };
+
+    // Dispatch registerUser action
+    dispatch(registerUser(userData));
   };
 
   return (
@@ -74,9 +156,10 @@ function UserRegister() {
           <div className="text-center">
             <h2 className="text-3xl font-bold text-gray-800">Create Account</h2>
             <p className="mt-2 text-gray-600">Join our platform and get started</p>
+            {error && <p className="mt-2 text-red-600">{error}</p>}
           </div>
 
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit}>
             {/* Profile Image Upload */}
             <div className="flex justify-center">
               <label htmlFor="profileImage" className="relative group cursor-pointer">
@@ -128,10 +211,11 @@ function UserRegister() {
                     type="text"
                     value={formData.firstName}
                     onChange={handleChange}
-                    className="block w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                    className={`block w-full px-3 py-2 pl-10 border ${errors.firstName ? "border-red-500" : "border-gray-300"} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm`}
                     placeholder="First Name"
                   />
                 </div>
+                {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
               </div>
 
               <div>
@@ -147,10 +231,11 @@ function UserRegister() {
                     type="text"
                     value={formData.lastName}
                     onChange={handleChange}
-                    className="block w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                    className={`block w-full px-3 py-2 pl-10 border ${errors.lastName ? "border-red-500" : "border-gray-300"} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm`}
                     placeholder="Last Name"
                   />
                 </div>
+                {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
               </div>
             </div>
 
@@ -168,10 +253,11 @@ function UserRegister() {
                   type="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="block w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                  className={`block w-full px-3 py-2 pl-10 border ${errors.email ? "border-red-500" : "border-gray-300"} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm`}
                   placeholder="Email address"
                 />
               </div>
+              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
 
             {/* Password Fields */}
@@ -189,10 +275,11 @@ function UserRegister() {
                     type="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="block w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                    className={`block w-full px-3 py-2 pl-10 border ${errors.password ? "border-red-500" : "border-gray-300"} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm`}
                     placeholder="Password"
                   />
                 </div>
+                {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
               </div>
 
               <div>
@@ -208,10 +295,11 @@ function UserRegister() {
                     type="password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="block w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                    className={`block w-full px-3 py-2 pl-10 border ${errors.confirmPassword ? "border-red-500" : "border-gray-300"} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm`}
                     placeholder="Confirm Password"
                   />
                 </div>
+                {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
               </div>
             </div>
 
@@ -259,9 +347,10 @@ function UserRegister() {
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                disabled={loading}
+                className={`w-full py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white ${loading ? "bg-indigo-400" : "bg-indigo-600 hover:bg-indigo-700"} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
               >
-                Create Account
+                {loading ? "Creating Account..." : "Create Account"}
               </button>
             </div>
             <p className="text-center text-gray-600">
