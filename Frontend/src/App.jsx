@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import UserLogin from './Pages/User/UserLogin';
 import Home from './Pages/Home';
 import UserRegister from './Pages/User/UserRegister';
+import CreateCard from './Pages/CreateCard';
 
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
       <Route path="/" element={<Home/>} />
       <Route path="/user/login" element={<UserLogin/>} />
       <Route path = "/user/register" element = {<UserRegister/>}/>
+      <Route path = '/create-card' element  = {<CreateCard/>}/>
     </Routes>
   )
 }
