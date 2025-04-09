@@ -6,6 +6,7 @@ import cors from 'cors';
 import connectToDB from './db/db.js';
 import errorMiddleware from './Middlewares/errorMiddleware.js';
 import userRoutes from './Routes/user.routes.js';
+import morgan from 'morgan';
 
 dotenv.config();
 const app = express();
@@ -19,6 +20,7 @@ app.use(cors( corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(morgan('dev'));
 
 // Test Route
 app.get('/', (req, res) => {

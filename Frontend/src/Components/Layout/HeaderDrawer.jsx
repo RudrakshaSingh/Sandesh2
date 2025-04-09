@@ -67,11 +67,11 @@ const HeaderDrawer = () => {
 
           {/* Authentication Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <a href="/login" className="text-white hover:text-amber-100 text-sm">
+            <a href="users/login" className="text-white hover:text-amber-100 text-sm">
               Log in
             </a>
             <a
-              href="/signup"
+              href="/user/register"
               className="bg-white text-amber-600 px-4 py-2 rounded text-sm font-medium hover:bg-amber-50 transition duration-150"
             >
               Sign up
@@ -128,10 +128,10 @@ const HeaderDrawer = () => {
               About
             </a>
             <div className="pt-4 pb-3 border-t border-amber-600">
-              <a href="/login" className="block px-3 py-2 text-white hover:bg-amber-600 rounded-md">
+              <a href="users/login" className="block px-3 py-2 text-white hover:bg-amber-600 rounded-md">
                 Log in
               </a>
-              <a href="/signup" className="block px-3 py-2 text-white bg-amber-600 hover:bg-amber-500 rounded-md mt-1">
+              <a href="/user/register" className="block px-3 py-2 text-white bg-amber-600 hover:bg-amber-500 rounded-md mt-1">
                 Sign up
               </a>
             </div>
