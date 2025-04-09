@@ -68,8 +68,10 @@ function UserLogin() {
             />
           </div>
 
-          <div className="text-right text-sm text-blue-500 hover:underline cursor-pointer">
+          <div className='flex justify-end'>
+          <Link to='/user/forgot-password' className="text-sm text-blue-500 hover:underline cursor-pointer">
             Forgot your password?
+          </Link>
           </div>
 
           {/* Submit Button */}
