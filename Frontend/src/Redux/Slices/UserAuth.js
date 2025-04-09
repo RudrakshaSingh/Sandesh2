@@ -89,6 +89,38 @@ const userAuthSlice = createSlice({
                 state.error = action.payload?.message || 'Something went wrong';
                 state.success = false;
             })
+
+            // Login user cases
+            .addCase(loginUser.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(loginUser.fulfilled, (state, action) => {
+                state.loading = false;
+                state.user = action.payload.data;
+                state.success = true;
+                state.error = null;
+            })
+            .addCase(loginUser.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message || 'Login failed';
+                state.success = false;
+            })
+            
+            // Logout user cases
+            .addCase(logoutUser.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(logoutUser.fulfilled, (state) => {
+                state.loading = false;
+                state.user = null;
+                state.success = true;
+                state.error = null;
+            })
+            .addCase(logoutUser.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message || 'Logout failed';
+            });
     }
 });
 

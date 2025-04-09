@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Upload, User, Mail, Key, Phone, MapPin, Camera } from "lucide-react";
@@ -134,15 +135,19 @@ function UserRegister() {
       return;
     }
 
-    // Prepare data for API (without confirmPassword)
-    const userData = {
-      firstname: formData.firstName,
-      lastname: formData.lastName,
-      email: formData.email,
-      password: formData.password,
-      mobileNumber: formData.mobileNumber,
-      address: formData.address
-    };
+    // Prepare data for API using FormData
+  const userData = new FormData(); // Initialize as FormData
+  userData.append("firstname", formData.firstName);
+  userData.append("lastname", formData.lastName);
+  userData.append("email", formData.email);
+  userData.append("password", formData.password);
+  userData.append("mobileNumber", formData.mobileNumber);
+  userData.append("address", formData.address);
+
+  // Add profileImage if it exists
+  if (formData.profileImage) {
+    userData.append("profileImage", formData.profileImage);
+  }
 
     // Dispatch registerUser action
     dispatch(registerUser(userData));

@@ -1,23 +1,46 @@
-import React, { useState } from 'react'
-import { Mail, KeyRound } from 'lucide-react'
-import {Link} from 'react-router-dom';
-function UserLogin() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+import { KeyRound,Mail } from 'lucide-react';
+import React, { useEffect,useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
 
-  const handleEmailChange = (e) => setEmail(e.target.value)
-  const handlePasswordChange = (e) => setPassword(e.target.value)
+import { loginUser, resetUserState } from '../../Redux/Slices/UserAuth';
+
+function UserLogin() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { loading, success, error, user } = useSelector((state) => state.userAuth);
+
+  const handleEmailChange = (e) => setEmail(e.target.value);
+  const handlePasswordChange = (e) => setPassword(e.target.value);
 
   const handleSubmit = (e) => {
-    e.preventDefault()
-    console.log("Email:", email)
-    console.log("Password:", password)
-  }
+    e.preventDefault();
+    const userData = { email, password };
+    dispatch(loginUser(userData));
+  };
+
+  // Navigate on successful login and reset state on unmount (like UserRegister)
+  useEffect(() => {
+    if (success) {
+      navigate('/'); // Navigate to home on successful login
+    }
+  }, [success, navigate]);
+
+  // Reset state when component unmounts (optional, like UserRegister)
+  useEffect(() => {
+    return () => {
+      dispatch(resetUserState());
+    };
+  }, [dispatch]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
         <h2 className="text-2xl font-bold text-center mb-6">Login to Your Account</h2>
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Email Field */}
           <div className="relative">
@@ -52,21 +75,24 @@ function UserLogin() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700 transition-all duration-200"
+            disabled={loading}
+            className={`w-full py-2 rounded-xl text-white transition-all duration-200 ${
+              loading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+            }`}
           >
-            Login
+            {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
 
         <p className="text-center text-sm mt-6 text-gray-600">
-          Don’t have an account?{" "}
-          <Link  to= '/user/register' className="text-blue-600 font-medium cursor-pointer hover:underline">
+          Don’t have an account?{' '}
+          <Link to="/users/register" className="text-blue-600 font-medium cursor-pointer hover:underline">
             Sign up
           </Link>
         </p>
       </div>
     </div>
-  )
+  );
 }
 
-export default UserLogin
+export default UserLogin;
