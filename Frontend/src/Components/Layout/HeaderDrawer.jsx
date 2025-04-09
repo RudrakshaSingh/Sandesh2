@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, X, ChevronDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const HeaderDrawer = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -53,9 +54,9 @@ const HeaderDrawer = () => {
                 )}
               </li>
               <li>
-                <a href="/create" className="text-white hover:text-amber-100 py-2 transition duration-150">
-                  Create
-                </a>
+              <Link to="/create-card" className="block px-3 py-2 text-white hover:bg-amber-600 rounded-md">
+              Create
+            </Link>
               </li>
               <li>
                 <a href="/about" className="text-white hover:text-amber-100 py-2 transition duration-150">
@@ -121,9 +122,9 @@ const HeaderDrawer = () => {
                 </a>
               </div>
             )}
-            <a href="/create" className="block px-3 py-2 text-white hover:bg-amber-600 rounded-md">
+            <Link to="/create-card" className="block px-3 py-2 text-white hover:bg-amber-600 rounded-md">
               Create
-            </a>
+            </Link>
             <a href="/about" className="block px-3 py-2 text-white hover:bg-amber-600 rounded-md">
               About
             </a>

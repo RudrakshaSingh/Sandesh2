@@ -7,6 +7,7 @@ import UserForgotPassword from './Pages/User/UserForgotPassword';
 import UserNewPassword from './Pages/User/UserNewPassword';
 import UserPrivacyPolicy from './Pages/User/UserPrivacyPolicy';
 
+import CreateCard from './Pages/CreateCard';
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
       <Route path = "/user/forgot-password" element = {<UserForgotPassword/>}/>
       <Route path = "/user/new-password" element = {<UserNewPassword/>}/>
       <Route path = "/user/privacy-policy" element = {<UserPrivacyPolicy/>}/>
+      <Route path = '/create-card' element  = {<CreateCard/>}/>
     </Routes>
   )
 }
