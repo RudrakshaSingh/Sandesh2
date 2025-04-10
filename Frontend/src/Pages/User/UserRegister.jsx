@@ -1,9 +1,10 @@
 /* eslint-disable no-useless-escape */
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Upload, User, Mail, Key, Phone, MapPin, Camera } from "lucide-react";
-import Webcam from "react-webcam";
+import { Camera,Key, Mail, MapPin, Phone, Upload, User } from "lucide-react";
+import { useEffect,useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import Webcam from "react-webcam";
+
 import { registerUser, resetUserState } from "../../Redux/Slices/UserAuth";
 
 // Constants
@@ -46,7 +47,7 @@ function UserRegister() {
   // Redirect on successful registration
   useEffect(() => {
     if (success) {
-      navigate("/users/login");
+      navigate("/user/login");
     }
   }, [success, navigate]);
 
@@ -360,7 +361,7 @@ function UserRegister() {
             </div>
             <p className="text-center text-gray-600">
               Already have an account?{" "}
-              <Link to="/users/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+              <Link to="/user/login" className="font-medium text-indigo-600 hover:text-indigo-500">
                 Sign in
               </Link>
             </p>
