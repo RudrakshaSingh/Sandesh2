@@ -4,6 +4,7 @@ import asyncHandler from "../Helpers/AsyncHandler.js";
 import uploadOnCloudinary from "../Helpers/Cloudinary.js";
 import userModel from "../Models/user.model.js";
 import jwt from "jsonwebtoken";
+import deleteOnCloudinary from "../Helpers/deleteOnCloudinary.js";
 
 export const registerUser = asyncHandler(async (req, res, next) => {
 	const { firstname, lastname, email, password, mobileNumber, address } = req.body;
@@ -217,59 +218,80 @@ export const getUserProfile = asyncHandler(async (req, res, next) => {
 	return res.status(200).json(new ApiResponse(200, "User profile retrieved successfully", user));
 });
 
-export const updateProfile = asyncHandler(async (req, res, next) => {
-	// Get user from the authenticated request
-	const userId = req.user?._id;
-
-	if (!userId) {
-		return next(new ApiError(401, "Unauthorized: User not authenticated"));
-	}
-
-	const { firstname, lastname, mobileNumber, address } = req.body;
-
-	// Find the user
-	const user = await userModel.findById(userId);
-
-	if (!user) {
-		return next(new ApiError(404, "User not found"));
-	}
-
-	// Update fields if provided
-	if (firstname && firstname.trim().length >= 3) {
-		user.fullname.firstname = firstname.charAt(0).toUpperCase() + firstname.slice(1).toLowerCase();
-	}
-
-	if (lastname && lastname.trim().length >= 3) {
-		user.fullname.lastname = lastname.charAt(0).toUpperCase() + lastname.slice(1).toLowerCase();
-	}
-
-	if (mobileNumber) {
-		user.mobileNumber = mobileNumber;
-	}
-
-	if (address) {
-		user.address = address;
-	}
-
-	// Handle profile image update if a new file is uploaded
-	const profilePictureLocalPath = req.file?.path;
-
-	if (profilePictureLocalPath) {
-		// Import uploadOnCloudinary here to avoid circular dependency
-		const uploadOnCloudinary = (await import("../Helpers/Cloudinary.js")).default;
-
-		// Upload to Cloudinary
-		const profileImage = await uploadOnCloudinary(profilePictureLocalPath);
-		if (!profileImage) {
-			return next(new ApiError(400, "Error uploading profile picture"));
-		}
-		user.profileImage = profileImage.url;
-	}
-
-	// Save the updated user
-	await user.save();
-
-	return res.status(200).json(new ApiResponse(200, "Profile updated successfully", user));
+export const updateUserProfile = asyncHandler(async (req, res, next) => {
+    // Get user from the authenticated request
+    const userId = req.user?._id;
+    
+    if (!userId) {
+        return next(new ApiError(401, "Unauthorized: User not authenticated"));
+    }
+    
+    const { firstname, lastname, mobileNumber, address } = req.body;
+    
+    // Find the user
+    const user = await userModel.findById(userId);
+    
+    if (!user) {
+        return next(new ApiError(404, "User not found"));
+    }
+    
+    // Validate and update firstname if provided
+    if (firstname !== undefined) {
+        if (firstname.trim().length < 3) {
+            return next(new ApiError(400, "First name must be at least 3 characters long"));
+        }
+        user.fullname.firstname = firstname.charAt(0).toUpperCase() + firstname.slice(1).toLowerCase();
+        console.log(user.fullname.firstname);
+    }
+    
+    // Validate and update lastname if provided
+    if (lastname !== undefined) {
+        if (lastname.trim().length < 3) {
+            return next(new ApiError(400, "Last name must be at least 3 characters long"));
+        }
+        user.fullname.lastname = lastname.charAt(0).toUpperCase() + lastname.slice(1).toLowerCase();
+    }
+    
+    // Validate and update mobile number if provided
+    if (mobileNumber !== undefined) {
+        // Check if mobile number is exactly 10 digits
+        const mobileRegex = /^\d{10}$/;
+        if (!mobileRegex.test(mobileNumber)) {
+            return next(new ApiError(400, "Mobile number must be exactly 10 digits"));
+        }
+        user.mobileNumber = mobileNumber;
+    }
+    
+    if (address) {
+        user.address = address;
+    }
+    
+    // Handle profile image update if a new file is uploaded
+    const profilePictureLocalPath = req.file?.path;
+    
+    if (profilePictureLocalPath) {
+        // Store the previous profile image URL for deletion
+        const previousProfileImageUrl = user.profileImage;
+        
+        // Upload to Cloudinary
+        const profileImage = await uploadOnCloudinary(profilePictureLocalPath);
+        if (!profileImage) {
+            return next(new ApiError(400, "Error uploading profile picture"));
+        }
+        
+        // Update user profile with new image URL
+        user.profileImage = profileImage.url;
+        
+        // Delete previous profile image from Cloudinary if it's not the default
+        if (previousProfileImageUrl && previousProfileImageUrl !== process.env.DEFAULT_PROFILE_IMAGE_URL) {
+            await deleteOnCloudinary(previousProfileImageUrl);
+        }
+    }
+    
+    // Save the updated user
+    await user.save();
+    
+    return res.status(200).json(new ApiResponse(200, "Profile updated successfully", user));
 });
 
 export const logoutUser = asyncHandler(async (req, res, next) => {
