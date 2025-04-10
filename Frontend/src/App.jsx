@@ -1,6 +1,8 @@
 import React from 'react'
 import { Route, Routes } from "react-router-dom";
-
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { checkAuthStatus } from './Redux/Slices/UserAuth';
 import CreateCard from './Pages/CreateCard';
 import Home from './Pages/Home';
 import ProfilePage from './Pages/User/ProfilePage';
@@ -12,6 +14,12 @@ import UserRegister from './Pages/User/UserRegister';
 
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // Check authentication status when the app loads
+    dispatch(checkAuthStatus());
+  }, [dispatch]);
   return (
     <Routes>
       <Route path="/" element={<Home/>} />

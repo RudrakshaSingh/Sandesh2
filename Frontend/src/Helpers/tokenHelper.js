@@ -7,16 +7,16 @@ const prepareAuthRequest = async () => {
   try {
     const accessToken = getToken('access');
     const refreshToken = getToken('refresh');
-    
+
     if (!accessToken && !refreshToken) {
       resetUserAndTokens(); // Only clear tokens, don't dispatch here
       return null;
     }
-    
+
     if (accessToken && !isExpired(accessToken)) {
       return { headers: { Authorization: `Bearer ${accessToken}` } };
     }
-    
+
     if (refreshToken && !isExpired(refreshToken)) {
       const success = await refreshTokens(refreshToken);
       if (success) {
@@ -24,7 +24,7 @@ const prepareAuthRequest = async () => {
         return { headers: { Authorization: `Bearer ${newAccessToken}` } };
       }
     }
-    
+
     resetUserAndTokens(); // Only clear tokens
     return null;
   } catch (error) {
@@ -37,11 +37,11 @@ const prepareAuthRequest = async () => {
 const saveAuthTokens = (response) => {
     // Extract tokens from response.data.message
     const { accessToken, refreshToken } = response.data.message || {};
-  
+
     if (accessToken) {
       localStorage.setItem('accessToken', accessToken);
     }
-    
+
     if (refreshToken) {
       localStorage.setItem('refreshToken', refreshToken);
     }
@@ -80,6 +80,3 @@ async function refreshTokens(refreshToken) {
 }
 
 export { prepareAuthRequest, resetUserAndTokens, saveAuthTokens };
-// prepareAuthRequest() - Call this before making authenticated API requests to validate tokens and get a config object with the auth header
-// saveAuthTokens(response) - Call this after login/register to save the tokens
-// resetUserAndTokens() - Call this to log out or reset auth state
