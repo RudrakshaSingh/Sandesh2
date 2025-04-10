@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const UserPrivacyPolicy = () => {
+const PrivacyPolicy = () => {
   const [activeSection, setActiveSection] = useState(null);
 
   // Sections data structure for easy navigation and collapsible sections
@@ -186,4 +186,4 @@ const UserPrivacyPolicy = () => {
   );
 };
 
-export default UserPrivacyPolicy;
+export default PrivacyPolicy;
