@@ -8,7 +8,7 @@ import Home from './Pages/Home';
 import UserForgotPassword from './Pages/User/UserForgotPassword';
 import UserLogin from './Pages/User/UserLogin';
 import UserNewPassword from './Pages/User/UserNewPassword';
-import UserPrivacyPolicy from './Pages/User/UserPrivacyPolicy';
+import PrivacyPolicy from './Pages/CompanyPolicy/PrivacyPolicy';
 import UserProfilePage from './Pages/User/UserProfilePage';
 import UserRegister from './Pages/User/UserRegister';
 import { checkAuthStatus } from './Redux/Slices/UserAuth';
@@ -31,6 +31,7 @@ function App() {
       <Route path = "/user/privacy-policy" element = {<UserPrivacyPolicy/>}/>
       <Route path = '/create-card' element  = {<CreateCard/>}/>
       <Route path = '/user/profile' element = {<UserProfilePage/>}/>
+      <Route path = '/privacy-policy' element = {<PrivacyPolicy/>}/>
     </Routes>
   )
 }
