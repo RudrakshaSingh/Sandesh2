@@ -12,7 +12,8 @@ import PrivacyPolicy from './Pages/CompanyPolicy/PrivacyPolicy';
 import UserProfilePage from './Pages/User/UserProfilePage';
 import UserRegister from './Pages/User/UserRegister';
 import { checkAuthStatus } from './Redux/Slices/UserAuth';
-
+import AboutUs from './Pages/AboutUs';
+import ContactUs from './Pages/ContactUs';
 
 function App() {
   const dispatch = useDispatch();
@@ -28,12 +29,14 @@ function App() {
       <Route path = "/user/register" element = {<UserRegister/>}/>
       <Route path = "/user/forgot-password" element = {<UserForgotPassword/>}/>
       <Route path = "/user/new-password" element = {<UserNewPassword/>}/>
-      <Route path = "/user/privacy-policy" element = {<UserPrivacyPolicy/>}/>
+      <Route path = "/user/privacy-policy" element = {<PrivacyPolicy/>}/>
       <Route path = '/create-card' element  = {<CreateCard/>}/>
       <Route path = '/user/profile' element = {<UserProfilePage/>}/>
       <Route path = '/privacy-policy' element = {<PrivacyPolicy/>}/>
+      <Route path = '/about-us' element = {<AboutUs/>}/>
+      <Route path = '/contact-us' element = {<ContactUs/>}/>
+
     </Routes>
   )
 }
-
 export default App
