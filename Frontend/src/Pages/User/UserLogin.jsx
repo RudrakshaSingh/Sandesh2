@@ -3,7 +3,7 @@ import React, { useEffect,useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { loginUser, resetUserState } from '../../Redux/Slices/UserAuth';
+import { loginUser } from '../../Redux/Slices/UserAuth';
 
 function UserLogin() {
   const [email, setEmail] = useState('');
@@ -28,13 +28,6 @@ function UserLogin() {
       navigate('/'); // Navigate to home on successful login
     }
   }, [success, navigate]);
-
-  // Reset state when component unmounts (optional, like UserRegister)
-  useEffect(() => {
-    return () => {
-      dispatch(resetUserState());
-    };
-  }, [dispatch]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
