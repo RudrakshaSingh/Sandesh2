@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import toast from 'react-hot-toast';
-import axiosInstance from '../../Components/Helpers/axiosInstance';
+
+import axiosInstance from '../../Helpers/axiosInstance';
 
 // Initial state for the user authentication
 const initialState = {
