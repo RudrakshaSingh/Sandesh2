@@ -271,3 +271,9 @@ export const updateProfile = asyncHandler(async (req, res, next) => {
 
 	return res.status(200).json(new ApiResponse(200, "Profile updated successfully", user));
 });
+
+export const logoutUser = asyncHandler(async (req, res, next) => {
+	res.clearCookie("accessToken");
+	res.clearCookie("refreshToken");
+	return res.status(200).json(new ApiResponse(200, "Logged out successfully"));
+});
