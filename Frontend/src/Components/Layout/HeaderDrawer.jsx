@@ -1,7 +1,8 @@
+import { ChevronDown, CircleUserRound,LogOut, Mail, Menu, User, X } from 'lucide-react';
 import React, { useState } from 'react';
-import { Menu, X, ChevronDown, User, LogOut, Mail, CircleUserRound } from 'lucide-react';
+import { useDispatch,useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+
 import { logoutUser } from '../../Redux/Slices/UserAuth';
 
 const HeaderDrawer = () => {
@@ -110,17 +111,17 @@ const HeaderDrawer = () => {
     onMouseLeave={() => setIsProfileDropdownOpen(false)}
 
   >
-    <Link to="/user/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 flex items-center">
+    <Link to="/user/profile" className=" px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 flex items-center">
       <CircleUserRound className="h-4 w-4 mr-2 text-amber-600" />
       My Profile
     </Link>
-    <Link to="/my-invitations" className="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 flex items-center">
+    <Link to="/my-invitations" className=" px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 flex items-center">
       <Mail className="h-4 w-4 mr-2 text-amber-600" />
       My Invitations
     </Link>
     <button
       onClick={handleLogout}
-      className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 flex items-center"
+      className="w-full text-left  px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 flex items-center"
     >
       <LogOut className="h-4 w-4 mr-2 text-amber-600" />
       Logout
@@ -130,7 +131,7 @@ const HeaderDrawer = () => {
               </div>
             ) : (
               <>
-                <Link to="/users/login" className="text-white hover:text-amber-100 text-sm">
+                <Link to="/user/login" className="text-white hover:text-amber-100 text-sm">
                   Log in
                 </Link>
                 <Link
@@ -207,17 +208,17 @@ const HeaderDrawer = () => {
                     </div>
                   </div>
                   <div className="mt-3 space-y-1">
-                    <Link to="/user/profile" className="block px-3 py-2 text-white hover:bg-amber-600 rounded-md flex items-center">
+                    <Link to="/user/profile" className=" px-3 py-2 text-white hover:bg-amber-600 rounded-md flex items-center">
                       <CircleUserRound className="h-4 w-4 mr-2" />
                       My Profile
                     </Link>
-                    <Link to="/my-invitations" className="block px-3 py-2 text-white hover:bg-amber-600 rounded-md flex items-center">
+                    <Link to="/my-invitations" className=" px-3 py-2 text-white hover:bg-amber-600 rounded-md flex items-center">
                       <Mail className="h-4 w-4 mr-2" />
                       My Invitations
                     </Link>
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left block px-3 py-2 text-white hover:bg-amber-600 rounded-md flex items-center"
+                      className="w-full text-left  px-3 py-2 text-white hover:bg-amber-600 rounded-md flex items-center"
                     >
                       <LogOut className="h-4 w-4 mr-2" />
                       Logout
@@ -226,7 +227,7 @@ const HeaderDrawer = () => {
                 </>
               ) : (
                 <>
-                  <Link to="/users/login" className="block px-3 py-2 text-white hover:bg-amber-600 rounded-md">
+                  <Link to="/user/login" className="block px-3 py-2 text-white hover:bg-amber-600 rounded-md">
                     Log in
                   </Link>
                   <Link to="/user/register" className="block px-3 py-2 text-white bg-amber-600 hover:bg-amber-500 rounded-md mt-1">

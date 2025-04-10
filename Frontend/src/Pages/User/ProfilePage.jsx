@@ -15,7 +15,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (error === "Authentication failed") {
-      navigate('/users/login');
+      navigate('/user/login');
     }
   }, [error, navigate]);
 
