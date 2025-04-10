@@ -1,5 +1,5 @@
+import { KeyRound,Mail } from 'lucide-react'
 import React, { useState } from 'react'
-import { Mail, KeyRound } from 'lucide-react'
 import {Link} from 'react-router-dom';
 
 function UserForgotPassword() {
