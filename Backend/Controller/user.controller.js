@@ -50,7 +50,7 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 	// Handle profile image upload
 	const profilePictureLocalPath = req.file?.path;
 	let profileImageUrl = process.env.DEFAULT_PROFILE_IMAGE_URL;
-	
+
 	if (profilePictureLocalPath) {
 		// Upload to Cloudinary
 		const profileImage = await uploadOnCloudinary(profilePictureLocalPath);
@@ -70,7 +70,7 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 		password,
 		mobileNumber,
 		address,
-		profileImage: profileImageUrl // Add profile image URL to the user document
+		profileImage: profileImageUrl, // Add profile image URL to the user document
 	});
 
 	// Remove password from response
@@ -82,120 +82,192 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 
 export const loginUser = asyncHandler(async (req, res, next) => {
 	const { email, password } = req.body;
-  
+
 	// Validate email and password are provided
 	if (!email || !password) {
-	  return next(new ApiError(400, "Email and password are required"));
+		return next(new ApiError(400, "Email and password are required"));
 	}
-  
+
 	// Find user by email
 	const user = await userModel.findOne({ email }).select("+password");
-  
+
 	// Check if user exists
 	if (!user) {
-	  return next(new ApiError(404, "User not found"));
+		return next(new ApiError(404, "User not found"));
 	}
-  
+
 	// Verify password
 	const isPasswordValid = await user.comparePassword(password);
 	if (!isPasswordValid) {
-	  return next(new ApiError(401, "Invalid credentials"));
+		return next(new ApiError(401, "Invalid credentials"));
 	}
-  
+
 	// Generate access and refresh tokens
 	const accessToken = user.generateAccessToken();
 	const refreshToken = user.generateRefreshToken();
-  
+
 	// Save refresh token to user document
 	user.refreshToken = refreshToken;
 	await user.save({ validateBeforeSave: false });
-  
+
 	// Set cookies options
 	const cookieOptions = {
-	  httpOnly: true,
-	  secure: process.env.NODE_ENV === "production",
+		httpOnly: true,
+		secure: process.env.NODE_ENV === "production",
 	};
-  
+
 	// Remove password from response
 	const userWithoutPassword = user.toObject();
 	delete userWithoutPassword.password;
 	delete userWithoutPassword.refreshToken;
-  
+
 	// Set cookies and send response
 	return res
-	  .status(200)
-	  .cookie("accessToken", accessToken, cookieOptions)
-	  .cookie("refreshToken", refreshToken, {
-		...cookieOptions,
-		// Set longer expiry for refresh token
-		expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-	  })
-	  .json(
-		new ApiResponse(200, "User logged in successfully", {
-		  user: userWithoutPassword,
-		  accessToken,
-		  refreshToken,
+		.status(200)
+		.cookie("accessToken", accessToken, cookieOptions)
+		.cookie("refreshToken", refreshToken, {
+			...cookieOptions,
+			// Set longer expiry for refresh token
+			expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
 		})
-	  );
+		.json(
+			new ApiResponse(200, "User logged in successfully", {
+				user: userWithoutPassword,
+				accessToken,
+				refreshToken,
+			})
+		);
 });
 
 export const refreshAccessToken = asyncHandler(async (req, res, next) => {
-  // Get refresh token from cookie or request body
-  const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
+	// Get refresh token from cookie or request body
+	const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
 
-  // Check if refresh token exists
-  if (!incomingRefreshToken) {
-    return next(new ApiError(401, "Unauthorized request: Refresh token not found"));
-  }
+	// Check if refresh token exists
+	if (!incomingRefreshToken) {
+		return next(new ApiError(401, "Unauthorized request: Refresh token not found"));
+	}
 
-  try {
-    // Verify the refresh token
-    const decodedToken = jwt.verify(
-      incomingRefreshToken,
-      process.env.REFRESH_TOKEN_SECRET
-    );
+	try {
+		// Verify the refresh token
+		const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
 
-    // Find user with this refresh token
-    const user = await userModel.findById(decodedToken._id);
-    if (!user) {
-      return next(new ApiError(401, "Invalid refresh token or user not found"));
-    }
+		// Find user with this refresh token
+		const user = await userModel.findById(decodedToken._id);
+		if (!user) {
+			return next(new ApiError(401, "Invalid refresh token or user not found"));
+		}
 
-    // Check if incoming refresh token matches stored token
-    if (incomingRefreshToken !== user.refreshToken) {
-      return next(new ApiError(401, "Refresh token is expired or used"));
-    }
+		// Check if incoming refresh token matches stored token
+		if (incomingRefreshToken !== user.refreshToken) {
+			return next(new ApiError(401, "Refresh token is expired or used"));
+		}
 
-    // Generate new tokens
-    const accessToken = user.generateAccessToken();
-    const refreshToken = user.generateRefreshToken();
+		// Generate new tokens
+		const accessToken = user.generateAccessToken();
+		const refreshToken = user.generateRefreshToken();
 
-    // Update refresh token in database
-    user.refreshToken = refreshToken;
-    await user.save({ validateBeforeSave: false });
+		// Update refresh token in database
+		user.refreshToken = refreshToken;
+		await user.save({ validateBeforeSave: false });
 
-    // Set cookie options
-    const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-    };
+		// Set cookie options
+		const cookieOptions = {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+		};
 
-    // Send response with new tokens
-    return res
-      .status(200)
-      .cookie("accessToken", accessToken, cookieOptions)
-      .cookie("refreshToken", refreshToken, {
-        ...cookieOptions,
-        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-      })
-      .json(
-        new ApiResponse(200, "Access token refreshed", {
-          accessToken,
-          refreshToken,
-        })
-      );
-  } catch (error) {
-    // Handle JWT verification errors
-    return next(new ApiError(401, error?.message || "Invalid refresh token"));
-  }
+		// Send response with new tokens
+		return res
+			.status(200)
+			.cookie("accessToken", accessToken, cookieOptions)
+			.cookie("refreshToken", refreshToken, {
+				...cookieOptions,
+				expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+			})
+			.json(
+				new ApiResponse(200, "Access token refreshed", {
+					accessToken,
+					refreshToken,
+				})
+			);
+	} catch (error) {
+		// Handle JWT verification errors
+		return next(new ApiError(401, error?.message || "Invalid refresh token"));
+	}
+});
+
+export const getUserProfile = asyncHandler(async (req, res, next) => {
+	// Get user from the authenticated request
+	// This assumes you have middleware that sets req.user
+	const userId = req.user?._id;
+
+	if (!userId) {
+		return next(new ApiError(401, "Unauthorized: User not authenticated"));
+	}
+
+	// Find the user by ID
+	const user = await userModel.findById(userId);
+
+	if (!user) {
+		return next(new ApiError(404, "User not found"));
+	}
+
+	// Return the user profile without sensitive information
+	return res.status(200).json(new ApiResponse(200, "User profile retrieved successfully", user));
+});
+
+export const updateProfile = asyncHandler(async (req, res, next) => {
+	// Get user from the authenticated request
+	const userId = req.user?._id;
+
+	if (!userId) {
+		return next(new ApiError(401, "Unauthorized: User not authenticated"));
+	}
+
+	const { firstname, lastname, mobileNumber, address } = req.body;
+
+	// Find the user
+	const user = await userModel.findById(userId);
+
+	if (!user) {
+		return next(new ApiError(404, "User not found"));
+	}
+
+	// Update fields if provided
+	if (firstname && firstname.trim().length >= 3) {
+		user.fullname.firstname = firstname.charAt(0).toUpperCase() + firstname.slice(1).toLowerCase();
+	}
+
+	if (lastname && lastname.trim().length >= 3) {
+		user.fullname.lastname = lastname.charAt(0).toUpperCase() + lastname.slice(1).toLowerCase();
+	}
+
+	if (mobileNumber) {
+		user.mobileNumber = mobileNumber;
+	}
+
+	if (address) {
+		user.address = address;
+	}
+
+	// Handle profile image update if a new file is uploaded
+	const profilePictureLocalPath = req.file?.path;
+
+	if (profilePictureLocalPath) {
+		// Import uploadOnCloudinary here to avoid circular dependency
+		const uploadOnCloudinary = (await import("../Helpers/Cloudinary.js")).default;
+
+		// Upload to Cloudinary
+		const profileImage = await uploadOnCloudinary(profilePictureLocalPath);
+		if (!profileImage) {
+			return next(new ApiError(400, "Error uploading profile picture"));
+		}
+		user.profileImage = profileImage.url;
+	}
+
+	// Save the updated user
+	await user.save();
+
+	return res.status(200).json(new ApiResponse(200, "Profile updated successfully", user));
 });
