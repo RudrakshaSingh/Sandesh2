@@ -100,7 +100,7 @@ const HeaderDrawer = () => {
                   <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center mr-2">
                         <img src={user.profileImage} className="w-full h-full rounded-full"  alt="" srcset="" />
                   </div>
-                  <span className="hidden lg:inline">{user.fullname.firstname.toUpperCase() || 'My Account'}</span>
+                  <span className="hidden lg:inline">{user?.fullname?.firstname.toUpperCase() || 'My Account'}</span>
                   <ChevronDown className="ml-1 h-5 w-5 font-bold" />
                 </button>
 
