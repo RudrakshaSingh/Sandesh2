@@ -1,5 +1,5 @@
 import express from "express";
-import { getUserProfile, loginUser, logoutUser, refreshAccessToken, registerUser } from "../Controller/user.controller.js";
+import { getUserProfile, loginUser, logoutUser, refreshAccessToken, registerUser, updateUserProfile } from "../Controller/user.controller.js";
 
 import { verifyJWT } from "../Middlewares/auth.middleware.js";
 import {upload} from "../Middlewares/multer.middleware.js";
@@ -10,6 +10,6 @@ router.post("/login", upload.none(), loginUser);
 router.post("/refresh-token", refreshAccessToken);
 router.get("/profile", verifyJWT, getUserProfile);
 router.post("/logout",verifyJWT,logoutUser );
-// router.put("/update-profile", verifyJWT, updateUserProfile);
+router.put("/profile", verifyJWT, upload.single("profileImage"), updateUserProfile);
 
 export default router;
