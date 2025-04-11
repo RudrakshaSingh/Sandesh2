@@ -1,8 +1,17 @@
+<<<<<<< HEAD
+=======
+/* eslint-disable react-hooks/exhaustive-deps */
+import * as fabric from 'fabric';// You'll need to install this: npm install fabric
+>>>>>>> 971bac04484c28c6b53684270604f0006a6e5e69
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+
 import Layout from '../Components/Layout/Layout';
+<<<<<<< HEAD
 import * as fabric from 'fabric';// You'll need to install this: npm install fabric
+=======
+>>>>>>> 971bac04484c28c6b53684270604f0006a6e5e69
 
 const CreateCard = () => {
   const canvasRef = useRef(null);
@@ -16,7 +25,7 @@ const CreateCard = () => {
   // Check if user is authenticated
   useEffect(() => {
     if (!success || !user) {
-      navigate('/users/login');
+      navigate('/user/login');
     }
   }, [success, user, navigate]);
 
