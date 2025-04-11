@@ -85,6 +85,11 @@ const HeaderDrawer = () => {
                   About
                 </Link>
               </li>
+              <li>
+                <Link to="/contact-us" className="text-white hover:text-amber-100 py-2 transition duration-150">
+                  contact
+                </Link>
+              </li>
             </ul>
           </nav>
 
