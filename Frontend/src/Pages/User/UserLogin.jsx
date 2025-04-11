@@ -106,7 +106,7 @@ function UserLogin() {
           <p className="text-center text-sm mt-8 text-gray-600">
             Don't have an account?{' '}
             <Link
-              to="/users/register"
+              to="/user/register"
               className="text-amber-600 font-medium cursor-pointer hover:text-amber-700 transition-colors"
             >
               Sign up

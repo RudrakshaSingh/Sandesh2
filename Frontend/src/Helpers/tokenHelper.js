@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // tokenHelper.js
 import { jwtDecode } from 'jwt-decode';
 
