@@ -3,17 +3,18 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { Route, Routes } from "react-router-dom";
 
+import AboutUs from './Pages/AboutUs';
+import PrivacyPolicy from './Pages/CompanyPolicy/PrivacyPolicy';
+import ContactUs from './Pages/ContactUs';
 import CreateCard from './Pages/CreateCard';
 import Home from './Pages/Home';
+import UserChangePassword from './Pages/User/UserChangePassword';
 import UserForgotPassword from './Pages/User/UserForgotPassword';
 import UserLogin from './Pages/User/UserLogin';
 import UserNewPassword from './Pages/User/UserNewPassword';
-import PrivacyPolicy from './Pages/CompanyPolicy/PrivacyPolicy';
 import UserProfilePage from './Pages/User/UserProfilePage';
 import UserRegister from './Pages/User/UserRegister';
 import { checkAuthStatus } from './Redux/Slices/UserAuth';
-import AboutUs from './Pages/AboutUs';
-import ContactUs from './Pages/ContactUs';
 
 function App() {
   const dispatch = useDispatch();
@@ -28,7 +29,11 @@ function App() {
       <Route path="/user/login" element={<UserLogin/>} />
       <Route path = "/user/register" element = {<UserRegister/>}/>
       <Route path = "/user/forgot-password" element = {<UserForgotPassword/>}/>
-      <Route path = "/user/new-password" element = {<UserNewPassword/>}/>
+      {/* route pattern for reset password with token parameter */}
+      <Route path="/user/reset-password/:resetToken" element={<UserNewPassword/>}/>
+      {/*  this route as a fallback for direct access */}
+      <Route path="/user/new-password" element={<UserNewPassword/>}/>
+      <Route path = "/user/change-password" element = {<UserChangePassword/>}/>
       <Route path = "/user/privacy-policy" element = {<PrivacyPolicy/>}/>
       <Route path = '/create-card' element  = {<CreateCard/>}/>
       <Route path = '/user/profile' element = {<UserProfilePage/>}/>
