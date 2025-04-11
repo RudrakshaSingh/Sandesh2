@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import toast from "react-hot-toast";
 
@@ -143,6 +144,8 @@ export const getUserProfile = createAsyncThunk(
       }
 
       const response = await axiosInstance.get("/users/profile", config);
+      console.log("hi",response.data); // Debugging line to check payload
+      
       return response.data;
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to fetch profile");
@@ -246,8 +249,10 @@ const userAuthSlice = createSlice({
         state.error = null;
       })
       .addCase(getUserProfile.fulfilled, (state, action) => {
+        console.log("kk",action.payload); // Debugging line to check payload
+        
         state.loading = false;
-        state.user = action.payload.data;
+        state.user = action.payload.message || null; // Adjust this path if needed based on your API response
         state.success = true;
         state.error = null;
       })

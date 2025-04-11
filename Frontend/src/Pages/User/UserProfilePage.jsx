@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { getUserProfile } from '../../Redux/Slices/UserAuth';
 
-const ProfilePage = () => {
+const UserProfilePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, loading, error, success } = useSelector((state) => state.userAuth);
@@ -15,7 +15,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (error === "Authentication failed") {
-      navigate('/users/login');
+      navigate('/user/login');
     }
   }, [error, navigate]);
 
@@ -42,7 +42,7 @@ const ProfilePage = () => {
             <div className="flex flex-col">
               <span className="text-gray-600 font-medium">Full Name:</span>
               <span className="text-gray-800">
-  {user.fullname.firstname} {user.fullname.lastname}
+  {user?.fullname?.firstname} {user?.fullname?.lastname}
 </span>
             </div>
 
@@ -98,4 +98,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default UserProfilePage;
