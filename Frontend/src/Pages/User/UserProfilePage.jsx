@@ -9,15 +9,15 @@ const UserProfilePage = () => {
   const navigate = useNavigate();
   const { user, loading, error, success } = useSelector((state) => state.userAuth);
 
-  // useEffect(() => {
-  //   dispatch(getUserProfile());
-  // }, [dispatch]);
+  useEffect(() => {
+    dispatch(getUserProfile());
+  }, [dispatch]);
 
-  // useEffect(() => {
-  //   if (error === "Authentication failed") {
-  //     navigate('/user/login');
-  //   }
-  // }, [error, navigate]);
+  useEffect(() => {
+    if (error === "Authentication failed") {
+      navigate('/user/login');
+    }
+  }, [error, navigate]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
@@ -82,10 +82,10 @@ const UserProfilePage = () => {
             </div>
           </div>
         )}
-{/* 
+
         {!user && !loading && !error && (
           <p className="text-center text-gray-500">No profile data available.</p>
-        )} */}
+        )}
 
         <div></div>
         

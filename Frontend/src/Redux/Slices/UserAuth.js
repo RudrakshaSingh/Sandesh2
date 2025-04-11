@@ -11,6 +11,9 @@ const initialState = {
   loading: false,
   error: null,
   success: false,
+  resetEmailSent: false,
+  passwordResetSuccess: false,
+  passwordChangeSuccess: false
 };
 
 // Create async thunk for user registration
@@ -154,6 +157,67 @@ export const getUserProfile = createAsyncThunk(
   }
 );
 
+// Create async thunk for forgot password
+export const forgotPassword = createAsyncThunk(
+  "user/forgotPassword",
+  async ({ email }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post("/users/forgot-password", { email });
+      if (response.status === 200) {
+        toast.success("Password reset link sent to your email");
+        return response.data;
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to send reset link");
+      return rejectWithValue(error.response?.data || { message: "Failed to send reset link" });
+    }
+  }
+);
+
+// Create async thunk for reset password
+export const resetPassword = createAsyncThunk(
+  "user/resetPassword",
+  async ({ resetToken, password }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`/users/reset-password/${resetToken}`, { password });
+      if (response.status === 200) {
+        toast.success("Password reset successfully");
+        return response.data;
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Password reset failed");
+      return rejectWithValue(error.response?.data || { message: "Password reset failed" });
+    }
+  }
+);
+
+// Create async thunk for change password (when logged in)
+export const changePassword = createAsyncThunk(
+  "user/changePassword",
+  async ({ oldPassword, newPassword }, { rejectWithValue }) => {
+    try {
+      const config = await prepareAuthRequest();
+      if (!config) {
+        return rejectWithValue({ message: "Authentication failed" });
+      }
+
+      const response = await axiosInstance.post(
+        "/users/change-password", 
+        { oldPassword, newPassword },
+        config
+      );
+      
+      if (response.status === 200) {
+        toast.success("Password changed successfully");
+        return response.data;
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Password change failed");
+      return rejectWithValue(error.response?.data || { message: "Password change failed" });
+    }
+  }
+);
+
 // Create the user authentication slice
 const userAuthSlice = createSlice({
   name: "userAuth",
@@ -211,7 +275,7 @@ const userAuthSlice = createSlice({
       .addCase(checkAuthStatus.fulfilled, (state, action) => {
         state.loading = false;
         if (action.payload) {
-          state.user = action.payload.data; // Adjust this path if needed based on your API response
+          state.user = action.payload.message; // Adjust this path if needed based on your API response
           state.success = true;
         } else {
           state.user = null;
@@ -249,7 +313,7 @@ const userAuthSlice = createSlice({
         state.error = null;
       })
       .addCase(getUserProfile.fulfilled, (state, action) => {
-        console.log("kk",action.payload); // Debugging line to check payload
+        console.log("kk",action.payload.message); // Debugging line to check payload
         
         state.loading = false;
         state.user = action.payload.message || null; // Adjust this path if needed based on your API response
@@ -262,7 +326,58 @@ const userAuthSlice = createSlice({
         if (action.payload?.message === "Authentication failed") {
           state.user = null; // Clear user on auth failure
         }
-      });
+      })
+
+      // Forgot password cases
+  .addCase(forgotPassword.pending, (state) => {
+    state.loading = true;
+    state.error = null;
+    state.resetEmailSent = false;
+  })
+  .addCase(forgotPassword.fulfilled, (state) => {
+    state.loading = false;
+    state.resetEmailSent = true;
+    state.error = null;
+  })
+  .addCase(forgotPassword.rejected, (state, action) => {
+    state.loading = false;
+    state.error = action.payload?.message || "Failed to send reset link";
+    state.resetEmailSent = false;
+  })
+  
+  // Reset password cases
+  .addCase(resetPassword.pending, (state) => {
+    state.loading = true;
+    state.error = null;
+    state.passwordResetSuccess = false;
+  })
+  .addCase(resetPassword.fulfilled, (state) => {
+    state.loading = false;
+    state.passwordResetSuccess = true;
+    state.error = null;
+  })
+  .addCase(resetPassword.rejected, (state, action) => {
+    state.loading = false;
+    state.error = action.payload?.message || "Password reset failed";
+    state.passwordResetSuccess = false;
+  })
+  
+  // Change password cases
+  .addCase(changePassword.pending, (state) => {
+    state.loading = true;
+    state.error = null;
+    state.passwordChangeSuccess = false;
+  })
+  .addCase(changePassword.fulfilled, (state) => {
+    state.loading = false;
+    state.passwordChangeSuccess = true;
+    state.error = null;
+  })
+  .addCase(changePassword.rejected, (state, action) => {
+    state.loading = false;
+    state.error = action.payload?.message || "Password change failed";
+    state.passwordChangeSuccess = false;
+  });
   },
 });
 
