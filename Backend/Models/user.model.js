@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 const userSchema = new mongoose.Schema(
    {
@@ -42,6 +43,12 @@ const userSchema = new mongoose.Schema(
       },profileImage: {
          type: String,
          required: true,
+      },
+      forgotPasswordToken: {
+         type: String,
+      },
+      forgotPasswordExpiry: {
+         type: Date,
       },
    },
    {
@@ -97,6 +104,24 @@ userSchema.methods.generateRefreshToken = function() {
          expiresIn: process.env.REFRESH_TOKEN_EXPIRY || "7d"
       }
    );
+};
+
+// Method to generate password reset token
+userSchema.methods.generatePasswordResetToken = async function() {
+   // Generate a random token
+   const resetToken = crypto.randomBytes(32).toString("hex");
+   
+   // Hash the token and store it in the database
+   this.forgotPasswordToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+   
+   // Set expiry time - 15 minutes
+   this.forgotPasswordExpiry = Date.now() + 15 * 60 * 1000;
+   
+   // Return the unhashed token (will be sent to user's email)
+   return resetToken;
 };
 
 const userModel = mongoose.model("user", userSchema);

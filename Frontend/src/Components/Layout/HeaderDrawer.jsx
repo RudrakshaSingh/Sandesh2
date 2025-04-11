@@ -81,8 +81,13 @@ const HeaderDrawer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="text-white hover:text-amber-100 py-2 transition duration-150">
+                <Link to="/about-us" className="text-white hover:text-amber-100 py-2 transition duration-150">
                   About
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact-us" className="text-white hover:text-amber-100 py-2 transition duration-150">
+                  contact
                 </Link>
               </li>
             </ul>
@@ -190,7 +195,7 @@ const HeaderDrawer = () => {
             <Link to="/create-card" className="block px-3 py-2 text-white hover:bg-amber-600 rounded-md">
               Create
             </Link>
-            <Link to="/about" className="block px-3 py-2 text-white hover:bg-amber-600 rounded-md">
+            <Link to="/about-us" className="block px-3 py-2 text-white hover:bg-amber-600 rounded-md">
               About
             </Link>
 
