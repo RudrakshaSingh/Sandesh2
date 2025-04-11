@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import * as fabric from 'fabric';// You'll need to install this: npm install fabric
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -17,7 +18,7 @@ const CreateCard = () => {
   // Check if user is authenticated
   useEffect(() => {
     if (!success || !user) {
-      navigate('/users/login');
+      navigate('/user/login');
     }
   }, [success, user, navigate]);
 

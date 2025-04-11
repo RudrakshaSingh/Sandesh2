@@ -336,7 +336,7 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     // Constructing URL for password reset
-    const resetPasswordUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+    const resetPasswordUrl = `${process.env.FRONTEND_URL}/user/reset-password/${resetToken}`;
 
     // Setup email content
     const subject = "Reset Password";
