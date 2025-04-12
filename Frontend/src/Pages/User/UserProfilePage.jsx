@@ -1,8 +1,9 @@
+import { ArrowLeft, CalendarClock, Edit, Mail, MapPin, Phone, Save, UserCircle2, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { getUserProfile,updateUserProfile,changePassword } from '../../Redux/Slices/UserAuth';
-import { ArrowLeft, Mail, Phone, MapPin, UserCircle2, CalendarClock, Edit, Save, X } from 'lucide-react';
+
+import { changePassword,getUserProfile,updateUserProfile } from '../../Redux/Slices/UserAuth';
 
 const UserProfilePage = () => {
   const dispatch = useDispatch();
