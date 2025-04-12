@@ -158,6 +158,7 @@ export const logoutUser = createAsyncThunk(
     }
   }
 );
+export const updateUserProfile = createAsyncThunk();
 
 // Create async thunk for fetching user profile
 export const getUserProfile = createAsyncThunk(
