@@ -5,6 +5,7 @@ import { Route, Routes } from "react-router-dom";
 
 import AboutUs from './Pages/AboutUs';
 import PrivacyPolicy from './Pages/CompanyPolicy/PrivacyPolicy';
+import TermsAndConditions from './Pages/CompanyPolicy/TermsAndConditions';
 import ContactUs from './Pages/ContactUs';
 import CreateCard from './Pages/CreateCard';
 import Home from './Pages/Home';
@@ -18,6 +19,7 @@ import UserRegister from './Pages/User/UserRegister';
 import { checkAuthStatus } from './Redux/Slices/UserAuth';
 import PageNotFound from './Pages/Error/PageNotFound';
 import AccessDenied from './Pages/Error/AccessDenied';
+
 
 
 function App() {
@@ -38,10 +40,10 @@ function App() {
       {/*  this route as a fallback for direct access */}
       <Route path="/user/new-password" element={<UserNewPassword/>}/>
       <Route path = "/user/change-password" element = {<UserChangePassword/>}/>
-      <Route path = "/user/privacy-policy" element = {<PrivacyPolicy/>}/>
       <Route path = '/create-card' element  = {<CreateCard/>}/>
       <Route path = '/user/profile' element = {<UserProfilePage/>}/>
       <Route path = '/privacy-policy' element = {<PrivacyPolicy/>}/>
+      <Route path = '/terms-and-conditions' element = {<TermsAndConditions/>}/>
       <Route path = '/about-us' element = {<AboutUs/>}/>
       <Route path = '/contact-us' element = {<ContactUs/>}/>
       <Route path = '/user/delete' element = {<UserDelete/>}/>
