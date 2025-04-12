@@ -21,16 +21,25 @@ export const registerUser = createAsyncThunk(
   "user/register",
   async (userData, { rejectWithValue }) => {
     try {
+      // Detect Google registration (from password pattern)
+      const isGoogleSignup =
+        typeof userData?.get === "function" &&
+        userData.get("password")?.startsWith("Google-");
+
       const response = await axiosInstance.post("/users/register", userData);
-      if (response.status === 201) {
-        toast.success("User Created Successfully");
-        // Save tokens if they are returned in the response
+
+      if (response.status === 201 || response.status === 200) {
+        toast.success(isGoogleSignup ? "Google Sign-up Successful" : "User Created Successfully");
+
+        // Save tokens if your backend sends them (optional)
         saveAuthTokens(response);
       }
+
       return response.data;
     } catch (error) {
-      toast.error(error.response?.data?.message || "User Creation Failed");
-      return rejectWithValue(error.response?.data || { message: "Registration failed" });
+      const errMsg = error.response?.data?.message || "User Creation Failed";
+      toast.error(errMsg);
+      return rejectWithValue(error.response?.data || { message: errMsg });
     }
   }
 );
@@ -40,15 +49,29 @@ export const loginUser = createAsyncThunk(
   "user/login",
   async (userData, { rejectWithValue }) => {
     try {
+      // Check if the login is via Google (FormData with flag)
+      const isGoogleLogin =
+        typeof userData?.get === "function" && userData.get("isGoogleLogin") === "true";
+
+      // Make API call to login
       const response = await axiosInstance.post("/users/login", userData);
+
+      // If login successful
       if (response.status === 200) {
-        toast.success("Login Successful");
-        saveAuthTokens(response); // Save tokens from response.data.message
-        return response.data; // Return full response.data for Redux
+        toast.success(isGoogleLogin ? "Google login successful" : "Login successful");
+
+        // Save auth tokens (access + refresh) from response
+        saveAuthTokens(response); // You may adjust this based on how you save cookies/localStorage
+
+        return response.data; // Send data to Redux store
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Login Failed");
-      return rejectWithValue(error.response?.data || { message: "Login failed" });
+      const errorMsg = error.response?.data?.message || "Login failed";
+
+      toast.error(errorMsg);
+
+      // Forward full error object to rejected action
+      return rejectWithValue(error.response?.data || { message: errorMsg });
     }
   }
 );
@@ -148,7 +171,7 @@ export const getUserProfile = createAsyncThunk(
 
       const response = await axiosInstance.get("/users/profile", config);
       console.log("hi",response.data); // Debugging line to check payload
-      
+
       return response.data;
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to fetch profile");
@@ -202,11 +225,11 @@ export const changePassword = createAsyncThunk(
       }
 
       const response = await axiosInstance.post(
-        "/users/change-password", 
+        "/users/change-password",
         { oldPassword, newPassword },
         config
       );
-      
+
       if (response.status === 200) {
         toast.success("Password changed successfully");
         return response.data;
@@ -314,7 +337,7 @@ const userAuthSlice = createSlice({
       })
       .addCase(getUserProfile.fulfilled, (state, action) => {
         console.log("kk",action.payload.message); // Debugging line to check payload
-        
+
         state.loading = false;
         state.user = action.payload.message || null; // Adjust this path if needed based on your API response
         state.success = true;
@@ -344,7 +367,7 @@ const userAuthSlice = createSlice({
     state.error = action.payload?.message || "Failed to send reset link";
     state.resetEmailSent = false;
   })
-  
+
   // Reset password cases
   .addCase(resetPassword.pending, (state) => {
     state.loading = true;
@@ -361,7 +384,7 @@ const userAuthSlice = createSlice({
     state.error = action.payload?.message || "Password reset failed";
     state.passwordResetSuccess = false;
   })
-  
+
   // Change password cases
   .addCase(changePassword.pending, (state) => {
     state.loading = true;

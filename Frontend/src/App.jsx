@@ -15,6 +15,7 @@ import UserNewPassword from './Pages/User/UserNewPassword';
 import UserProfilePage from './Pages/User/UserProfilePage';
 import UserRegister from './Pages/User/UserRegister';
 import { checkAuthStatus } from './Redux/Slices/UserAuth';
+import GoogleLoginForm from './Pages/User/Firebase';
 
 function App() {
   const dispatch = useDispatch();
@@ -40,6 +41,7 @@ function App() {
       <Route path = '/privacy-policy' element = {<PrivacyPolicy/>}/>
       <Route path = '/about-us' element = {<AboutUs/>}/>
       <Route path = '/contact-us' element = {<ContactUs/>}/>
+      <Route path = '/google' element = {<GoogleLoginForm/>}/>
 
     </Routes>
   )
