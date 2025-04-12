@@ -15,6 +15,7 @@ import UserNewPassword from './Pages/User/UserNewPassword';
 import UserProfilePage from './Pages/User/UserProfilePage';
 import UserRegister from './Pages/User/UserRegister';
 import { checkAuthStatus } from './Redux/Slices/UserAuth';
+import WeddingCardGallery from './Pages/Cards/WeddingCards';
 
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
       <Route path = '/privacy-policy' element = {<PrivacyPolicy/>}/>
       <Route path = '/about-us' element = {<AboutUs/>}/>
       <Route path = '/contact-us' element = {<ContactUs/>}/>
+      <Route path = '/templates/wedding-card' element = {<WeddingCardGallery/>}/>
 
 
     </Routes>
