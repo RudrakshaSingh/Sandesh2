@@ -16,6 +16,7 @@ import UserProfilePage from './Pages/User/UserProfilePage';
 import UserRegister from './Pages/User/UserRegister';
 import { checkAuthStatus } from './Redux/Slices/UserAuth';
 
+
 function App() {
   const dispatch = useDispatch();
 
@@ -40,6 +41,7 @@ function App() {
       <Route path = '/privacy-policy' element = {<PrivacyPolicy/>}/>
       <Route path = '/about-us' element = {<AboutUs/>}/>
       <Route path = '/contact-us' element = {<ContactUs/>}/>
+
 
     </Routes>
   )
