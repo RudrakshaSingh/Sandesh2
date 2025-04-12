@@ -9,6 +9,7 @@ import ContactUs from './Pages/ContactUs';
 import CreateCard from './Pages/CreateCard';
 import Home from './Pages/Home';
 import UserChangePassword from './Pages/User/UserChangePassword';
+import UserDelete from './Pages/User/UserDelete';
 import UserForgotPassword from './Pages/User/UserForgotPassword';
 import UserLogin from './Pages/User/UserLogin';
 import UserNewPassword from './Pages/User/UserNewPassword';
@@ -41,6 +42,7 @@ function App() {
       <Route path = '/privacy-policy' element = {<PrivacyPolicy/>}/>
       <Route path = '/about-us' element = {<AboutUs/>}/>
       <Route path = '/contact-us' element = {<ContactUs/>}/>
+      <Route path = '/user/delete' element = {<UserDelete/>}/>
 
 
     </Routes>

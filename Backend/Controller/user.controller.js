@@ -502,3 +502,46 @@ export const changePassword = asyncHandler(async (req, res, next) => {
 
 	return res.status(200).json(new ApiResponse(200, "Password changed successfully"));
 });
+
+export const deleteAccount = asyncHandler(async (req, res, next) => {
+    // Get user from the authenticated request
+    const userId = req.user?._id;
+
+    if (!userId) {
+        return next(new ApiError(401, "Unauthorized: User not authenticated"));
+    }
+
+    // Require password confirmation for account deletion security
+    const { password } = req.body;
+
+    if (!password) {
+        return next(new ApiError(400, "Password is required to delete your account"));
+    }
+
+    // Find the user
+    const user = await userModel.findById(userId).select("+password");
+
+    if (!user) {
+        return next(new ApiError(404, "User not found"));
+    }
+
+    // Verify password
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
+        return next(new ApiError(401, "Invalid password"));
+    }
+
+    // Delete profile image from Cloudinary if it's not the default
+    if (user.profileImage && user.profileImage !== process.env.DEFAULT_PROFILE_IMAGE_URL) {
+        await deleteOnCloudinary(user.profileImage);
+    }
+
+    // Delete the user from the database
+    await userModel.findByIdAndDelete(userId);
+
+    // Clear authentication cookies
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+
+    return res.status(200).json(new ApiResponse(200, "Account deleted successfully"));
+});
