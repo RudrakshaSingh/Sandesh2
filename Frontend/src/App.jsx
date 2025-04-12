@@ -16,6 +16,8 @@ import UserNewPassword from './Pages/User/UserNewPassword';
 import UserProfilePage from './Pages/User/UserProfilePage';
 import UserRegister from './Pages/User/UserRegister';
 import { checkAuthStatus } from './Redux/Slices/UserAuth';
+import PageNotFound from './Pages/Error/PageNotFound';
+import AccessDenied from './Pages/Error/AccessDenied';
 
 
 function App() {
@@ -43,8 +45,8 @@ function App() {
       <Route path = '/about-us' element = {<AboutUs/>}/>
       <Route path = '/contact-us' element = {<ContactUs/>}/>
       <Route path = '/user/delete' element = {<UserDelete/>}/>
-
-
+      <Route path = '*' element = {<PageNotFound/>}/>
+      <Route path = '/access-denied' element = {<AccessDenied/>}/>
     </Routes>
   )
 }
