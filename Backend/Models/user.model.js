@@ -50,6 +50,10 @@ const userSchema = new mongoose.Schema(
       forgotPasswordExpiry: {
          type: Date,
       },
+      isGoogleUser: {
+         type: Boolean,
+         default: false
+       },
    },
    {
       timestamps: true,
@@ -60,11 +64,11 @@ const userSchema = new mongoose.Schema(
 userSchema.pre("save", async function(next) {
    // Only hash the password if it's modified (or new)
    if (!this.isModified("password")) return next();
-       
+
    try {
       // Generate a salt
       const salt = await bcrypt.genSalt(10);
-      
+
       // Hash the password with the salt
       this.password = await bcrypt.hash(this.password, salt);
       next();
@@ -110,16 +114,16 @@ userSchema.methods.generateRefreshToken = function() {
 userSchema.methods.generatePasswordResetToken = async function() {
    // Generate a random token
    const resetToken = crypto.randomBytes(32).toString("hex");
-   
+
    // Hash the token and store it in the database
    this.forgotPasswordToken = crypto
       .createHash("sha256")
       .update(resetToken)
       .digest("hex");
-   
+
    // Set expiry time - 15 minutes
    this.forgotPasswordExpiry = Date.now() + 15 * 60 * 1000;
-   
+
    // Return the unhashed token (will be sent to user's email)
    return resetToken;
 };

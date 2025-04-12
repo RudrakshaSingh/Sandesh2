@@ -11,21 +11,17 @@ import crypto from "crypto";
 export const registerUser = asyncHandler(async (req, res, next) => {
 	const { firstname, lastname, email, password, mobileNumber, address } = req.body;
 
-	// Validate firstname
+	// Validate required fields
 	if (!firstname || firstname.trim().length < 3) {
 		return next(new ApiError(400, "First name is required and must be at least 3 characters long"));
 	}
-
-	// Validate lastname
 	if (!lastname || lastname.trim().length < 3) {
 		return next(new ApiError(400, "Last name is required and must be at least 3 characters long"));
 	}
 
-	// Capitalize first letter of firstname and lastname
 	const capitalizedFirstName = firstname.charAt(0).toUpperCase() + firstname.slice(1).toLowerCase();
 	const capitalizedLastName = lastname.charAt(0).toUpperCase() + lastname.slice(1).toLowerCase();
 
-	// Validate email
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	if (!email || !emailRegex.test(email)) {
 		return next(new ApiError(400, "Please provide a valid email"));
@@ -33,22 +29,32 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 	if (mobileNumber && !/^\d{10}$/.test(mobileNumber)) {
 		return next(new ApiError(400, "Mobile number must be exactly 10 digits"));
 	}
-	// Validate password (at least 8 characters, one uppercase, one lowercase, one number)
-	const passwordRegex =
-		/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[a-zA-Z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$/;
+	const isGoogleUser = password?.startsWith("Google-");
 
-	if (!password || !passwordRegex.test(password)) {
-		return next(
-			new ApiError(
-				400,
-				"Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character"
-			)
-		);
+	// Validate password only for normal users
+	if (!isGoogleUser) {
+		const passwordRegex =
+			/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[a-zA-Z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$/;
+		if (!password || !passwordRegex.test(password)) {
+			return next(
+				new ApiError(
+					400,
+					"Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+				)
+			);
+		}
 	}
 
-	// Check if email already exists
-	const isUserEmailAlreadyExists = await userModel.findOne({ email });
-	if (isUserEmailAlreadyExists) {
+	// Check if user already exists
+	const existingUser = await userModel.findOne({ email });
+
+	if (existingUser) {
+		// If registering via Google and user exists, skip creating and just return existing user
+		if (isGoogleUser) {
+			const userWithoutPassword = existingUser.toObject();
+			delete userWithoutPassword.password;
+			return res.status(200).json(new ApiResponse(200, "User already registered with Google", userWithoutPassword));
+		}
 		return next(new ApiError(400, "User email already exists"));
 	}
 
@@ -57,7 +63,6 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 	let profileImageUrl = process.env.DEFAULT_PROFILE_IMAGE_URL;
 
 	if (profilePictureLocalPath) {
-		// Upload to Cloudinary
 		const profileImage = await uploadOnCloudinary(profilePictureLocalPath);
 		if (!profileImage) {
 			return next(new ApiError(400, "Error uploading profile picture"));
@@ -65,75 +70,104 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 		profileImageUrl = profileImage.url;
 	}
 
-	// Create user - the password will be hashed automatically by the pre-save hook
+	// Create user
 	const user = await userModel.create({
 		fullname: {
 			firstname: capitalizedFirstName,
 			lastname: capitalizedLastName,
 		},
 		email,
-		password,
+		password, // your pre-save hook will still hash this, even if it's "Google-random123"
 		mobileNumber,
 		address,
-		profileImage: profileImageUrl, // Add profile image URL to the user document
+		profileImage: profileImageUrl,
 	});
 
-	// Remove password from response
 	const userWithoutPassword = user.toObject();
 	delete userWithoutPassword.password;
 
 	return res.status(201).json(new ApiResponse(201, "User created successfully", userWithoutPassword));
 });
 
-export const loginUser = asyncHandler(async (req, res, next) => {
-	const { email, password } = req.body;
 
-	// Validate email and password are provided
-	if (!email || !password) {
-		return next(new ApiError(400, "Email and password are required"));
+export const loginUser = asyncHandler(async (req, res, next) => {
+	const { email, password, isGoogleLogin } = req.body;
+
+	// Validate required fields
+	if (!email) {
+		return next(new ApiError(400, "Email is required"));
 	}
 
-	// Find user by email
+	// Fetch user by email
 	const user = await userModel.findOne({ email }).select("+password");
 
-	// Check if user exists
 	if (!user) {
 		return next(new ApiError(404, "User not found"));
 	}
 
-	// Verify password
+	// If Google login, skip password validation
+	if (isGoogleLogin === "true") {
+		// Generate access and refresh tokens
+		const accessToken = user.generateAccessToken();
+		const refreshToken = user.generateRefreshToken();
+
+		user.refreshToken = refreshToken;
+		await user.save({ validateBeforeSave: false });
+
+		const userWithoutPassword = user.toObject();
+		delete userWithoutPassword.password;
+		delete userWithoutPassword.refreshToken;
+
+		return res
+			.status(200)
+			.cookie("accessToken", accessToken, {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === "production",
+			})
+			.cookie("refreshToken", refreshToken, {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === "production",
+				expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+			})
+			.json(
+				new ApiResponse(200, "Google login successful", {
+					user: userWithoutPassword,
+					accessToken,
+					refreshToken,
+				})
+			);
+	}
+
+	// Traditional login flow
+	if (!password) {
+		return next(new ApiError(400, "Password is required"));
+	}
+
 	const isPasswordValid = await user.comparePassword(password);
 	if (!isPasswordValid) {
 		return next(new ApiError(401, "Invalid credentials"));
 	}
 
-	// Generate access and refresh tokens
 	const accessToken = user.generateAccessToken();
 	const refreshToken = user.generateRefreshToken();
 
-	// Save refresh token to user document
 	user.refreshToken = refreshToken;
 	await user.save({ validateBeforeSave: false });
 
-	// Set cookies options
-	const cookieOptions = {
-		httpOnly: true,
-		secure: process.env.NODE_ENV === "production",
-	};
-
-	// Remove password from response
 	const userWithoutPassword = user.toObject();
 	delete userWithoutPassword.password;
 	delete userWithoutPassword.refreshToken;
 
-	// Set cookies and send response
 	return res
 		.status(200)
-		.cookie("accessToken", accessToken, cookieOptions)
+		.cookie("accessToken", accessToken, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+		})
 		.cookie("refreshToken", refreshToken, {
-			...cookieOptions,
-			// Set longer expiry for refresh token
-			expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
 		})
 		.json(
 			new ApiResponse(200, "User logged in successfully", {
@@ -223,90 +257,87 @@ export const getUserProfile = asyncHandler(async (req, res, next) => {
 });
 
 export const updateUserProfile = asyncHandler(async (req, res, next) => {
-	// Get user from the authenticated request
-	const userId = req.user?._id;
+    // Get user from the authenticated request
+    const userId = req.user?._id;
 
-	if (!userId) {
-		return next(new ApiError(401, "Unauthorized: User not authenticated"));
-	}
+    if (!userId) {
+        return next(new ApiError(401, "Unauthorized: User not authenticated"));
+    }
 
-	// Check if req.body exists, and provide fallback
-	const body = req.body || {};
-	const { firstname, lastname, mobileNumber, address } = body;
+    // Check if req.body exists, and provide fallback
+    const body = req.body || {};
+    const { firstname, lastname, mobileNumber, address } = body;
 	// Check if any updates were provided, including profile image
-	const profileImageProvided = req.file?.path ? true : false;
+    const profileImageProvided = req.file?.path ? true : false;
 
-	if (!firstname && !lastname && !mobileNumber && !address && !profileImageProvided) {
-		return next(new ApiError(400, "No updates provided. Please provide at least one field to update."));
-	}
+    if (!firstname && !lastname && !mobileNumber && !address && !profileImageProvided) {
+        return next(new ApiError(400, "No updates provided. Please provide at least one field to update."));
+    }
 
-	// Find the user
-	const user = await userModel.findById(userId);
+    // Find the user
+    const user = await userModel.findById(userId);
 
-	if (!user) {
-		return next(new ApiError(404, "User not found"));
-	}
+    if (!user) {
+        return next(new ApiError(404, "User not found"));
+    }
 
-	// Validate and update firstname if provided
-	if (firstname !== undefined) {
-		if (firstname.trim().length < 3) {
-			return next(new ApiError(400, "First name must be at least 3 characters long"));
-		}
-		user.fullname.firstname = firstname.charAt(0).toUpperCase() + firstname.slice(1).toLowerCase();
-		console.log(user.fullname.firstname);
-	}
+    // Validate and update firstname if provided
+    if (firstname !== undefined) {
+        if (firstname.trim().length < 3) {
+            return next(new ApiError(400, "First name must be at least 3 characters long"));
+        }
+        user.fullname.firstname = firstname.charAt(0).toUpperCase() + firstname.slice(1).toLowerCase();
+        console.log(user.fullname.firstname);
+    }
 
-	// Validate and update lastname if provided
-	if (lastname !== undefined) {
-		if (lastname.trim().length < 3) {
-			return next(new ApiError(400, "Last name must be at least 3 characters long"));
-		}
-		user.fullname.lastname = lastname.charAt(0).toUpperCase() + lastname.slice(1).toLowerCase();
-	}
+    // Validate and update lastname if provided
+    if (lastname !== undefined) {
+        if (lastname.trim().length < 3) {
+            return next(new ApiError(400, "Last name must be at least 3 characters long"));
+        }
+        user.fullname.lastname = lastname.charAt(0).toUpperCase() + lastname.slice(1).toLowerCase();
+    }
 
-	// Validate and update mobile number if provided
-	if (mobileNumber !== undefined) {
-		// Check if mobile number is exactly 10 digits
-		const mobileRegex = /^\d{10}$/;
-		if (!mobileRegex.test(mobileNumber)) {
-			return next(new ApiError(400, "Mobile number must be exactly 10 digits"));
-		}
-		user.mobileNumber = mobileNumber;
-	}
+    // Validate and update mobile number if provided
+    if (mobileNumber !== undefined) {
+        // Check if mobile number is exactly 10 digits
+        const mobileRegex = /^\d{10}$/;
+        if (!mobileRegex.test(mobileNumber)) {
+            return next(new ApiError(400, "Mobile number must be exactly 10 digits"));
+        }
+        user.mobileNumber = mobileNumber;
+    }
 
-	if (address) {
-		user.address = address;
-	}
+    if (address) {
+        user.address = address;
+    }
 
-	// Handle profile image update if a new file is uploaded
-	const profilePictureLocalPath = req.file?.path;
+    // Handle profile image update if a new file is uploaded
+    const profilePictureLocalPath = req.file?.path;
 
-	if (profilePictureLocalPath) {
-		// Store the previous profile image URL for deletion
-		const previousProfileImageUrl = user.profileImage;
+    if (profilePictureLocalPath) {
+        // Store the previous profile image URL for deletion
+        const previousProfileImageUrl = user.profileImage;
 
-		// Upload to Cloudinary
-		const profileImage = await uploadOnCloudinary(profilePictureLocalPath);
-		if (!profileImage) {
-			return next(new ApiError(400, "Error uploading profile picture"));
-		}
-        if (!profileImage?.url) {
+        // Upload to Cloudinary
+        const profileImage = await uploadOnCloudinary(profilePictureLocalPath);
+        if (!profileImage) {
             return next(new ApiError(400, "Error uploading profile picture"));
         }
 
-		// Update user profile with new image URL
-		user.profileImage = profileImage.url;
+        // Update user profile with new image URL
+        user.profileImage = profileImage.url;
 
-		// Delete previous profile image from Cloudinary if it's not the default
-		if (previousProfileImageUrl && previousProfileImageUrl !== process.env.DEFAULT_PROFILE_IMAGE_URL) {
-			await deleteOnCloudinary(previousProfileImageUrl);
-		}
-	}
+        // Delete previous profile image from Cloudinary if it's not the default
+        if (previousProfileImageUrl && previousProfileImageUrl !== process.env.DEFAULT_PROFILE_IMAGE_URL) {
+            await deleteOnCloudinary(previousProfileImageUrl);
+        }
+    }
 
-	// Save the updated user
-	await user.save();
+    // Save the updated user
+    await user.save();
 
-	return res.status(200).json(new ApiResponse(200, "Profile updated successfully", user));
+    return res.status(200).json(new ApiResponse(200, "Profile updated successfully", user));
 });
 
 export const logoutUser = asyncHandler(async (req, res, next) => {
@@ -366,21 +397,21 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
 });
 
 export const resetPassword = asyncHandler(async (req, res, next) => {
-	// Extracting resetToken from req.params object
-	const { resetToken } = req.params;
-	console.log("resetToken", resetToken);
+    // Extracting resetToken from req.params object
+    const { resetToken } = req.params;
+    console.log("resetToken", resetToken);
 
-	// Extracting password from req.body object
-	const { password } = req.body;
+    // Extracting password from req.body object
+    const { password } = req.body;
 
 	// Check if password is provided
 	if (!password) {
 		return next(new ApiError(400, "Password is required"));
 	}
 
-	// Validate password (at least 8 characters, one uppercase, one lowercase, one number, one special character)
-	const passwordRegex =
-		/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[a-zA-Z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$/;
+    // Validate password (at least 8 characters, one uppercase, one lowercase, one number, one special character)
+    const passwordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[a-zA-Z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$/;
 
 	if (!passwordRegex.test(password)) {
 		return next(
@@ -434,9 +465,9 @@ export const changePassword = asyncHandler(async (req, res, next) => {
 		return next(new ApiError(400, "Old password and new password are required"));
 	}
 
-	// Validate new password
-	const passwordRegex =
-		/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[a-zA-Z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$/;
+    // Validate new password
+    const passwordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[a-zA-Z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$/;
 
 	if (!passwordRegex.test(newPassword)) {
 		return next(
