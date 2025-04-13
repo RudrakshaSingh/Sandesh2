@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
+import { getCardsByType, getAllCards } from './CardData';
 
 const Cards = () => {
   const location = useLocation();
@@ -13,31 +14,7 @@ const Cards = () => {
   const [pageTitle, setPageTitle] = useState('Cards');
   const [pageDescription, setPageDescription] = useState('Browse our collection of cards');
 
-  // Helper function to get category and type names
-  const getCategoryInfo = (categoryId, typeId) => {
-    const categoryData = templateCategories.find(cat => cat.id === categoryId);
-    if (!categoryData) {
-      // Try to find the type in all categories if category is not specified
-      for (const cat of templateCategories) {
-        const typeData = cat.subcategories.find(sub => sub.type === typeId);
-        if (typeData) {
-          return {
-            categoryName: cat.name,
-            typeName: typeData.name
-          };
-        }
-      }
-      return { categoryName: 'All Cards', typeName: typeId ? typeId.charAt(0).toUpperCase() + typeId.slice(1) : '' };
-    }
-
-    const typeData = categoryData.subcategories.find(sub => sub.type === typeId);
-    return {
-      categoryName: categoryData.name,
-      typeName: typeData ? typeData.name : 'All'
-    };
-  };
-
-  // Template categories data (same as in HeaderDrawer)
+  // Template categories definition
   const templateCategories = [
     {
       id: 'events',
@@ -96,8 +73,30 @@ const Cards = () => {
     }
   ];
 
+  // Helper function to get category and type names
+  const getCategoryInfo = (categoryId, typeId) => {
+    const categoryData = templateCategories.find(cat => cat.id === categoryId);
+    if (!categoryData) {
+      for (const cat of templateCategories) {
+        const typeData = cat.subcategories.find(sub => sub.type === typeId);
+        if (typeData) {
+          return {
+            categoryName: cat.name,
+            typeName: typeData.name
+          };
+        }
+      }
+      return { categoryName: 'All Cards', typeName: typeId ? typeId.charAt(0).toUpperCase() + typeId.slice(1).replace(/-/g, ' ') : '' };
+    }
+
+    const typeData = categoryData.subcategories.find(sub => sub.type === typeId);
+    return {
+      categoryName: categoryData.name,
+      typeName: typeData ? typeData.name : 'All'
+    };
+  };
+
   useEffect(() => {
-    // Try to get parameters from both URL query and path params
     const queryParams = new URLSearchParams(location.search);
     const categoryParam = queryParams.get('category');
     let typeParam = queryParams.get('type');
@@ -107,12 +106,6 @@ const Cards = () => {
     if (!typeParam && params.type) {
       typeParam = params.type;
     }
-
-    // For /templates/wedding-card specific URL, hardcode the type
-    if (location.pathname === '/templates/wedding-card') {
-      typeParam = 'wedding-card';
-    }
-
     setCategory(categoryParam);
     setType(typeParam);
 
@@ -133,36 +126,67 @@ const Cards = () => {
     fetchCards(categoryParam, typeParam);
   }, [location.search, location.pathname, params]);
 
-  // Function to fetch cards - replace with your actual API call
+  // Fetch cards function - uses your CardData.js
   const fetchCards = async (categoryParam, typeParam) => {
     setLoading(true);
     try {
-      // Simulate API call with a timeout
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Optional loading delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 300));
 
-      // Here you would typically fetch data from your API
-      // For now, we'll use mock data
-      const mockCards = generateMockCards(categoryParam, typeParam);
-      setCards(mockCards);
+      let filteredCards = [];
+
+      // Get cards based on type
+      if (typeParam) {
+        filteredCards = getCardsByType(typeParam);
+      } else if (categoryParam) {
+        // If only category is provided, get all cards and filter them by category
+        const allCards = getAllCards();
+
+        // Find all types that belong to this category
+        const categoryObj = templateCategories.find(cat => cat.id === categoryParam);
+        if (categoryObj) {
+          const categoryTypes = categoryObj.subcategories.map(sub => sub.type);
+          filteredCards = allCards.filter(card => categoryTypes.includes(card.type));
+        }
+      } else {
+        // If no filters, return all cards
+        filteredCards = getAllCards();
+      }
+
+      // If there's a specific subcategory filter (like 'elegant', 'luxury', etc.)
+      if (categoryParam && !['events', 'festivals', 'personal', 'special'].includes(categoryParam)) {
+        filteredCards = filteredCards.filter(card => card.category === categoryParam);
+      }
+
+      // If no cards found, use mock cards as fallback
+      if (filteredCards.length === 0) {
+        filteredCards = generateMockCards(categoryParam, typeParam);
+      }
+
+      setCards(filteredCards);
     } catch (error) {
       console.error('Error fetching cards:', error);
+      // Fallback to mock cards in case of error
+      const mockCards = generateMockCards(categoryParam, typeParam);
+      setCards(mockCards);
     } finally {
       setLoading(false);
     }
   };
 
-  // Generate mock cards for demonstration
+  // Generate mock cards as a fallback for card types without data
   const generateMockCards = (categoryParam, typeParam) => {
-    // This is just for demonstration
     const mockCards = [];
-    const count = 12; // Number of mock cards to generate
+    const count = 8; // Number of mock cards to generate
 
     for (let i = 1; i <= count; i++) {
       mockCards.push({
-        id: `card-${i}`,
+        id: `mock-card-${i}`,
+        src: `/api/placeholder/300/200`,
+        alt: `${typeParam ? typeParam.replace(/-/g, ' ') : 'card'} preview`,
         title: `${typeParam ? typeParam.charAt(0).toUpperCase() + typeParam.slice(1).replace(/-/g, ' ') : 'Card'} ${i}`,
-        image: `/api/placeholder/300/200`,
         description: `A beautiful ${typeParam ? typeParam.replace(/-/g, ' ') : 'card'} design for your special occasion.`,
+        price: `₹${Math.floor(Math.random() * 100) + 250}`,
         category: categoryParam || 'general',
         type: typeParam || 'general'
       });
@@ -202,14 +226,17 @@ const Cards = () => {
                 <div key={card.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                   <div className="h-48 bg-gray-200">
                     <img
-                      src={card.image}
-                      alt={card.title}
+                      src={card.src}
+                      alt={card.alt}
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <div className="p-4">
                     <h3 className="text-lg font-semibold text-gray-800">{card.title}</h3>
                     <p className="text-gray-600 text-sm mt-2">{card.description}</p>
+                    {card.price && (
+                      <p className="text-amber-600 font-medium mt-1">{card.price}</p>
+                    )}
                     <div className="mt-4">
                       <button className="w-full bg-amber-600 text-white py-2 rounded hover:bg-amber-700 transition-colors duration-300">
                         Use This Template

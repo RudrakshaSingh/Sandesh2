@@ -8,7 +8,8 @@ export const weddingCards = [
       title: "Botanical Romance",
       description: "Elegant hand-drawn floral design with delicate line art",
       price: "₹299",
-      category: "elegant"
+      category: "elegant",
+      type: "wedding-card"
     },
     {
       id: 2,
@@ -17,7 +18,8 @@ export const weddingCards = [
       title: "Golden Bloom",
       description: "Luxurious gradient golden floral design with intricate details",
       price: "₹349",
-      category: "luxury"
+      category: "luxury",
+      type: "wedding-card"
     },
     {
       id: 3,
@@ -26,7 +28,8 @@ export const weddingCards = [
       title: "Picture Perfect",
       description: "Modern invitation with photo frame for your favorite couple moment",
       price: "₹279",
-      category: "contemporary"
+      category: "contemporary",
+      type: "wedding-card"
     },
     {
       id: 4,
@@ -35,7 +38,8 @@ export const weddingCards = [
       title: "Garden Engagement",
       description: "Beautiful engagement invitation with colorful floral arrangements",
       price: "₹299",
-      category: "engagement"
+      category: "engagement",
+      type: "engagement"
     },
     {
       id: 5,
@@ -44,7 +48,8 @@ export const weddingCards = [
       title: "Traditional Elegance",
       description: "Authentic Indian wedding invitation with traditional motifs and ornate borders",
       price: "₹399",
-      category: "traditional"
+      category: "traditional",
+      type: "wedding-card"
     },
     {
       id: 6,
@@ -53,7 +58,8 @@ export const weddingCards = [
       title: "Sacred Beginnings",
       description: "Traditional Griha Pravesh invitation with Ganesha, lotus and sacred cow motifs",
       price: "₹349",
-      category: "religious"
+      category: "religious",
+      type: "housewarming"
     },
     {
       id: 7,
@@ -62,7 +68,8 @@ export const weddingCards = [
       title: "Couple's Portrait",
       description: "Elegant wedding poster template featuring the couple with floral elements",
       price: "₹329",
-      category: "modern"
+      category: "modern",
+      type: "wedding-card"
     },
     {
       id: 8,
@@ -71,7 +78,8 @@ export const weddingCards = [
       title: "Rajasthani Welcome",
       description: "Traditional Rajasthani-style Griha Pravesh invitation with vibrant colors",
       price: "₹279",
-      category: "cultural"
+      category: "cultural",
+      type: "housewarming"
     },
     {
       id: 9,
@@ -80,7 +88,8 @@ export const weddingCards = [
       title: "Rose Petal Romance",
       description: "Romantic wedding invitation adorned with delicate pink roses",
       price: "₹329",
-      category: "floral"
+      category: "floral",
+      type: "wedding-card"
     },
     {
       id: 10,
@@ -89,16 +98,184 @@ export const weddingCards = [
       title: "Pastel Watercolor Dream",
       description: "Beautiful Indian wedding invitation with pink and teal watercolor floral design",
       price: "₹349",
-      category: "artistic"
+      category: "artistic",
+      type: "wedding-card"
     },
   ];
 
   export const birthdayCards = [
-    // You can add birthday cards here in the future
+    {
+      id: 11,
+      src: "/api/placeholder/300/200", // Replace with actual image when available
+      alt: "Colorful Birthday Balloons Card",
+      title: "Celebration Balloons",
+      description: "Vibrant birthday card with colorful balloons and confetti design",
+      price: "₹249",
+      category: "cheerful",
+      type: "birthday"
+    },
+    {
+      id: 12,
+      src: "/api/placeholder/300/200", // Replace with actual image when available
+      alt: "Elegant Birthday Cake Card",
+      title: "Sweet Celebrations",
+      description: "Elegant birthday card featuring a beautifully decorated cake",
+      price: "₹279",
+      category: "elegant",
+      type: "birthday"
+    },
+    {
+      id: 13,
+      src: "/api/placeholder/300/200", // Replace with actual image when available
+      alt: "Birthday Wish Card",
+      title: "Birthday Wishes",
+      description: "Simple and elegant birthday card with modern typography",
+      price: "₹229",
+      category: "modern",
+      type: "birthday"
+    },
+    {
+      id: 14,
+      src: "/api/placeholder/300/200", // Replace with actual image when available
+      alt: "Kids Birthday Party Card",
+      title: "Kids Party Fun",
+      description: "Playful birthday invitation for children's parties with fun illustrations",
+      price: "₹249",
+      category: "kids",
+      type: "birthday"
+    }
   ];
 
   export const anniversaryCards = [
-    // You can add anniversary cards here in the future
+    {
+      id: 15,
+      src: "/api/placeholder/300/200", // Replace with actual image when available
+      alt: "Golden Anniversary Card",
+      title: "Golden Years",
+      description: "Elegant golden anniversary card for celebrating milestone years together",
+      price: "₹349",
+      category: "elegant",
+      type: "anniversary"
+    },
+    {
+      id: 16,
+      src: "/api/placeholder/300/200", // Replace with actual image when available
+      alt: "Romantic Anniversary Card",
+      title: "Romantic Journey",
+      description: "Romantic anniversary card celebrating the journey of love",
+      price: "₹299",
+      category: "romantic",
+      type: "anniversary"
+    },
+    {
+      id: 17,
+      src: "/api/placeholder/300/200", // Replace with actual image when available
+      alt: "Anniversary Photo Frame Card",
+      title: "Memories Together",
+      description: "Modern anniversary card with space for a couple's photo",
+      price: "₹329",
+      category: "contemporary",
+      type: "anniversary"
+    }
   ];
 
-  // Add more card categories as needed
+  export const engagementCards = [
+    {
+      id: 18,
+      src: "/api/placeholder/300/200", // Replace with actual image when available
+      alt: "Elegant Engagement Card",
+      title: "Promise of Forever",
+      description: "Elegant engagement announcement card with sophisticated design",
+      price: "₹299",
+      category: "elegant",
+      type: "engagement"
+    },
+    {
+      id: 19,
+      src: "/api/placeholder/300/200", // Replace with actual image when available
+      alt: "Modern Engagement Card",
+      title: "Modern Love Story",
+      description: "Contemporary engagement card with minimalist design",
+      price: "₹279",
+      category: "modern",
+      type: "engagement"
+    }
+  ];
+
+  export const housewarmingCards = [
+    {
+      id: 20,
+      src: "/api/placeholder/300/200", // Replace with actual image when available
+      alt: "Traditional Housewarming Card",
+      title: "New Beginnings",
+      description: "Traditional housewarming invitation with classic home illustrations",
+      price: "₹279",
+      category: "traditional",
+      type: "housewarming"
+    },
+    {
+      id: 21,
+      src: "/api/placeholder/300/200", // Replace with actual image when available
+      alt: "Modern Housewarming Card",
+      title: "Modern Abode",
+      description: "Contemporary housewarming invitation with minimalist design",
+      price: "₹299",
+      category: "modern",
+      type: "housewarming"
+    }
+  ];
+
+  export const diwaliCards = [
+    {
+      id: 22,
+      src: "/api/placeholder/300/200", // Replace with actual image when available
+      alt: "Traditional Diwali Card",
+      title: "Festival of Lights",
+      description: "Beautiful traditional Diwali greeting card with diyas and rangoli",
+      price: "₹249",
+      category: "traditional",
+      type: "diwali"
+    },
+    {
+      id: 23,
+      src: "/api/placeholder/300/200", // Replace with actual image when available
+      alt: "Modern Diwali Card",
+      title: "Modern Diwali",
+      description: "Contemporary Diwali greeting card with stylish designs",
+      price: "₹279",
+      category: "modern",
+      type: "diwali"
+    }
+  ];
+
+  // Function to get cards by type - useful for fetching cards
+  export const getCardsByType = (type) => {
+    switch(type) {
+      case 'wedding-card':
+        return weddingCards.filter(card => card.type === 'wedding-card');
+      case 'birthday':
+        return birthdayCards;
+      case 'anniversary':
+        return anniversaryCards;
+      case 'engagement':
+        return engagementCards.concat(weddingCards.filter(card => card.type === 'engagement'));
+      case 'housewarming':
+        return housewarmingCards.concat(weddingCards.filter(card => card.type === 'housewarming'));
+      case 'diwali':
+        return diwaliCards;
+      default:
+        return [];
+    }
+  };
+
+  // Function to get all cards - useful for search functionality
+  export const getAllCards = () => {
+    return [
+      ...weddingCards,
+      ...birthdayCards,
+      ...anniversaryCards,
+      ...engagementCards,
+      ...housewarmingCards,
+      ...diwaliCards
+    ];
+  };
