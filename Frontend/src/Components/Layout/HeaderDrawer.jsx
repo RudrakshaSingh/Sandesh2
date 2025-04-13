@@ -47,14 +47,14 @@ const HeaderDrawer = () => {
       name: 'Events & Celebrations',
       icon: <Calendar className="h-4 w-4 mr-2" />,
       subcategories: [
-        { name: 'Wedding Invitations', path: '/templates/wedding-card' },
-        { name: 'Engagement Announcements', path: '/templates/engagement' },
-        { name: 'Birthday Invites', path: '/templates/birthday' },
-        { name: 'Baby Shower / Naming Ceremony', path: '/templates/baby-shower' },
-        { name: 'Anniversary Celebrations', path: '/templates/anniversary' },
-        { name: 'Housewarming Invites', path: '/templates/housewarming' },
-        { name: 'Retirement Party Invites', path: '/templates/retirement' },
-        { name: 'Graduation Celebrations', path: '/templates/graduation' },
+        { name: 'Wedding Invitations', type: 'wedding-card' },
+        { name: 'Engagement Announcements', type: 'engagement' },
+        { name: 'Birthday Invites', type: 'birthday' },
+        { name: 'Baby Shower / Naming Ceremony', type: 'baby-shower' },
+        { name: 'Anniversary Celebrations', type: 'anniversary' },
+        { name: 'Housewarming Invites', type: 'housewarming' },
+        { name: 'Retirement Party Invites', type: 'retirement' },
+        { name: 'Graduation Celebrations', type: 'graduation' },
       ]
     },
     {
@@ -62,14 +62,14 @@ const HeaderDrawer = () => {
       name: 'Festivals',
       icon: <Gift className="h-4 w-4 mr-2" />,
       subcategories: [
-        { name: 'Diwali Greetings', path: '/templates/diwali' },
-        { name: 'Eid Mubarak Cards', path: '/templates/eid' },
-        { name: 'Holi Wishes', path: '/templates/holi' },
-        { name: 'Christmas Cards', path: '/templates/christmas' },
-        { name: 'Raksha Bandhan / Bhai Dooj', path: '/templates/raksha-bandhan' },
-        { name: 'Navratri / Durga Puja', path: '/templates/navratri' },
-        { name: 'Pongal / Makar Sankranti', path: '/templates/pongal' },
-        { name: 'Lohri / Baisakhi / Onam', path: '/templates/regional-festivals' },
+        { name: 'Diwali Greetings', type: 'diwali' },
+        { name: 'Eid Mubarak Cards', type: 'eid' },
+        { name: 'Holi Wishes', type: 'holi' },
+        { name: 'Christmas Cards', type: 'christmas' },
+        { name: 'Raksha Bandhan / Bhai Dooj', type: 'raksha-bandhan' },
+        { name: 'Navratri / Durga Puja', type: 'navratri' },
+        { name: 'Pongal / Makar Sankranti', type: 'pongal' },
+        { name: 'Lohri / Baisakhi / Onam', type: 'regional-festivals' },
       ]
     },
     {
@@ -77,14 +77,14 @@ const HeaderDrawer = () => {
       name: 'Personal & Professional',
       icon: <Briefcase className="h-4 w-4 mr-2" />,
       subcategories: [
-        { name: 'Thank You Cards', path: '/templates/thank-you' },
-        { name: 'Get Well Soon', path: '/templates/get-well' },
-        { name: 'Sorry / Apology Cards', path: '/templates/apology' },
-        { name: 'Farewell Notes', path: '/templates/farewell' },
-        { name: 'New Job / Promotion Cards', path: '/templates/promotion' },
-        { name: 'Love Notes / Proposal Cards', path: '/templates/love' },
-        { name: 'Condolences / RIP Cards', path: '/templates/condolences' },
-        { name: 'Professional Greetings', path: '/templates/professional' },
+        { name: 'Thank You Cards', type: 'thank-you' },
+        { name: 'Get Well Soon', type: 'get-well' },
+        { name: 'Sorry / Apology Cards', type: 'apology' },
+        { name: 'Farewell Notes', type: 'farewell' },
+        { name: 'New Job / Promotion Cards', type: 'promotion' },
+        { name: 'Love Notes / Proposal Cards', type: 'love' },
+        { name: 'Condolences / RIP Cards', type: 'condolences' },
+        { name: 'Professional Greetings', type: 'professional' },
       ]
     },
     {
@@ -92,13 +92,13 @@ const HeaderDrawer = () => {
       name: 'Special Days',
       icon: <Flag className="h-4 w-4 mr-2" />,
       subcategories: [
-        { name: 'Valentine\'s Day', path: '/templates/valentines' },
-        { name: 'Mother\'s Day / Father\'s Day', path: '/templates/parents-day' },
-        { name: 'Teacher\'s Day', path: '/templates/teachers-day' },
-        { name: 'Children\'s Day', path: '/templates/childrens-day' },
-        { name: 'Independence / Republic Day', path: '/templates/national-days' },
-        { name: 'Women\'s Day', path: '/templates/womens-day' },
-        { name: 'New Year Greetings', path: '/templates/new-year' },
+        { name: 'Valentine\'s Day', type: 'valentines' },
+        { name: 'Mother\'s Day / Father\'s Day', type: 'parents-day' },
+        { name: 'Teacher\'s Day', type: 'teachers-day' },
+        { name: 'Children\'s Day', type: 'childrens-day' },
+        { name: 'Independence / Republic Day', type: 'national-days' },
+        { name: 'Women\'s Day', type: 'womens-day' },
+        { name: 'New Year Greetings', type: 'new-year' },
       ]
     }
   ];
@@ -167,7 +167,7 @@ const HeaderDrawer = () => {
                             .subcategories.map((subcategory, index) => (
                               <Link
                                 key={index}
-                                to={subcategory.path}
+                                to={`/cards?category=${activeCategory}&type=${subcategory.type}`}
                                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50"
                               >
                                 {subcategory.name}
@@ -310,7 +310,7 @@ const HeaderDrawer = () => {
                           {category.subcategories.map((subcategory, index) => (
                             <Link
                               key={index}
-                              to={subcategory.path}
+                              to={`/cards?category=${category.id}&type=${subcategory.type}`}
                               className="block px-3 py-1.5 text-amber-200 hover:bg-amber-600 hover:text-white rounded-md text-xs"
                             >
                               {subcategory.name}

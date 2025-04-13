@@ -4,7 +4,6 @@ import { Route, Routes } from "react-router-dom";
 
 import UserProtector from './Components/UserProtector';
 import AboutUs from './Pages/AboutUs';
-import WeddingCardGallery from './Pages/Cards/WeddingCards';
 import PrivacyPolicy from './Pages/CompanyPolicy/PrivacyPolicy';
 import TermsAndConditions from './Pages/CompanyPolicy/TermsAndConditions';
 import ContactUs from './Pages/ContactUs';
@@ -18,6 +17,7 @@ import UserNewPassword from './Pages/User/UserNewPassword';
 import UserProfilePage from './Pages/User/UserProfilePage';
 import UserRegister from './Pages/User/UserRegister';
 import { getUserProfile } from './Redux/Slices/UserAuth';
+import Cards from './Pages/Cards/Cards';
 
 
 function App() {
@@ -44,8 +44,9 @@ function App() {
       <Route path = '/terms-and-conditions' element = {<TermsAndConditions/>}/>
       <Route path = '/about-us' element = {<AboutUs/>}/>
       <Route path = '/contact-us' element = {<ContactUs/>}/>
-      <Route path = '/templates/wedding-card' element = {<WeddingCardGallery/>}/>
       <Route path = '/user/delete' element = {<UserProtector><UserDelete/></UserProtector>}/>
+      <Route path="/cards" element={<Cards/>}/>
+      <Route path="/templates/:type" element={<Cards/>}/>
 
 
     </Routes>
