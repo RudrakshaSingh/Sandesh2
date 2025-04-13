@@ -4,10 +4,13 @@ import { Route, Routes } from "react-router-dom";
 
 import UserProtector from './Components/UserProtector';
 import AboutUs from './Pages/AboutUs';
+import Cards from './Pages/Cards/Cards';
 import PrivacyPolicy from './Pages/CompanyPolicy/PrivacyPolicy';
 import TermsAndConditions from './Pages/CompanyPolicy/TermsAndConditions';
 import ContactUs from './Pages/ContactUs';
 import CreateCard from './Pages/CreateCard';
+import AccessDenied from './Pages/Error/AccessDenied';
+import PageNotFound from './Pages/Error/PageNotFound';
 import Home from './Pages/Home';
 import UserChangePassword from './Pages/User/UserChangePassword';
 import UserDelete from './Pages/User/UserDelete';
@@ -17,15 +20,18 @@ import UserNewPassword from './Pages/User/UserNewPassword';
 import UserProfilePage from './Pages/User/UserProfilePage';
 import UserRegister from './Pages/User/UserRegister';
 import { getUserProfile } from './Redux/Slices/UserAuth';
-import Cards from './Pages/Cards/Cards';
 
 
 function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // Check authentication status when the app loads
-    dispatch(getUserProfile());
+      const accessToken = localStorage.getItem("accessToken");
+      const refreshToken = localStorage.getItem("refreshToken");
+
+      if (accessToken || refreshToken) {
+          dispatch(getUserProfile());
+      }
   }, [dispatch]);
   return (
     <Routes>
@@ -47,7 +53,8 @@ function App() {
       <Route path = '/user/delete' element = {<UserProtector><UserDelete/></UserProtector>}/>
       <Route path="/cards" element={<Cards/>}/>
       <Route path="/templates/:type" element={<Cards/>}/>
-
+      <Route path="/access-denied" element={<AccessDenied/>}/>
+      <Route path="*" element={<PageNotFound/>}/>
 
     </Routes>
   )
