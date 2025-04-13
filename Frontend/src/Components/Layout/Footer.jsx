@@ -35,7 +35,7 @@ const Footer = () => {
             <h3 className="text-base font-semibold text-white mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li><a href="/" className="text-gray-400 hover:text-amber-500 text-sm transition-colors">Home</a></li>
-              <li><a href="/about" className="text-gray-400 hover:text-amber-500 text-sm transition-colors">About Us</a></li>
+              <li><a href="/about-us" className="text-gray-400 hover:text-amber-500 text-sm transition-colors">About Us</a></li>
               <li><a href="/templates" className="text-gray-400 hover:text-amber-500 text-sm transition-colors">Templates</a></li>
               <li><a href="/pricing" className="text-gray-400 hover:text-amber-500 text-sm transition-colors">Pricing</a></li>
               <li><a href="/contact-us" className="text-gray-400 hover:text-amber-500 text-sm transition-colors">Contact</a></li>
