@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 
 import UserProtector from './Components/UserProtector';
 import AboutUs from './Pages/AboutUs';
+import WeddingCardGallery from './Pages/Cards/WeddingCards';
 import PrivacyPolicy from './Pages/CompanyPolicy/PrivacyPolicy';
 import ContactUs from './Pages/ContactUs';
 import CreateCard from './Pages/CreateCard';
@@ -14,7 +15,6 @@ import UserLogin from './Pages/User/UserLogin';
 import UserNewPassword from './Pages/User/UserNewPassword';
 import UserProfilePage from './Pages/User/UserProfilePage';
 import UserRegister from './Pages/User/UserRegister';
-import WeddingCardGallery from './Pages/Cards/WeddingCards';
 
 
 function App() {
