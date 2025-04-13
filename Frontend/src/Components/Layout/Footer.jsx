@@ -1,5 +1,6 @@
 import React from 'react';
 import { Mail, Phone, MapPin, Instagram, Facebook, Twitter, Linkedin } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -81,9 +82,9 @@ const Footer = () => {
             </p>
             <div className="mt-4 md:mt-0">
               <ul className="flex space-x-6">
-                <li><a href="/privacy" className="text-gray-500 hover:text-amber-500 text-xs transition-colors">Privacy Policy</a></li>
-                <li><a href="/terms" className="text-gray-500 hover:text-amber-500 text-xs transition-colors">Terms of Service</a></li>
-                <li><a href="/cookies" className="text-gray-500 hover:text-amber-500 text-xs transition-colors">Cookie Policy</a></li>
+                <li><Link to="privacy-policy" className="text-gray-500 hover:text-amber-500 text-xs transition-colors">Privacy Policy</Link></li>
+                <li><a href="/terms-and-conditions" className="text-gray-500 hover:text-amber-500 text-xs transition-colors">Terms of Service</a></li>
+                <li><Link to="/cookies" className="text-gray-500 hover:text-amber-500 text-xs transition-colors">Cookie Policy</Link></li>
               </ul>
             </div>
           </div>
