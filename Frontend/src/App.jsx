@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useDispatch } from 'react-redux';
 import { Route, Routes } from "react-router-dom";
 
 import UserProtector from './Components/UserProtector';
@@ -16,9 +17,16 @@ import UserLogin from './Pages/User/UserLogin';
 import UserNewPassword from './Pages/User/UserNewPassword';
 import UserProfilePage from './Pages/User/UserProfilePage';
 import UserRegister from './Pages/User/UserRegister';
+import { getUserProfile } from './Redux/Slices/UserAuth';
 
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // Check authentication status when the app loads
+    dispatch(getUserProfile());
+  }, [dispatch]);
   return (
     <Routes>
       <Route path="/" element={<Home/>} />
