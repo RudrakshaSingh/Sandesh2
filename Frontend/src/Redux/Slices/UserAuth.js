@@ -67,32 +67,6 @@ export const loginUser = createAsyncThunk("user/login", async (userData, { rejec
 	}
 });
 
-// Create async thunk for checking authentication status on app load
-export const checkAuthStatus = createAsyncThunk("user/checkStatus", async (_, { rejectWithValue }) => {
-	try {
-		// Use existing helper to prepare auth request with tokens from storage
-		const config = await prepareAuthRequest();
-
-		// If no valid auth config (no tokens or expired), return null
-		if (!config) {
-			return null;
-		}
-
-		// Make a request to get current user data
-		const response = await axiosInstance.get("/users/profile", config);
-
-		if (response.status === 200) {
-			return response.data; // This should contain user data
-		}
-
-		return null;
-	} catch (error) {
-		// If verification fails or token is invalid, clear stored tokens
-		resetUserAndTokens();
-		return rejectWithValue(null);
-	}
-});
-
 // Create async thunk for user logout with improved error handling
 export const logoutUser = createAsyncThunk("users/logout", async (_, { rejectWithValue, dispatch }) => {
 	try {
@@ -178,20 +152,23 @@ export const updateUserProfile = createAsyncThunk("user/updateProfile", async (u
 
 // Create async thunk for fetching user profile
 export const getUserProfile = createAsyncThunk("user/profile", async (_, { rejectWithValue }) => {
-	try {
-		const config = await prepareAuthRequest();
-		if (!config) {
-			return rejectWithValue({ message: "Authentication failed" });
-		}
-
-		const response = await axiosInstance.get("/users/profile", config);
-		console.log("hi", response.data); // Debugging line to check payload
-
-		return response.data;
-	} catch (error) {
-		toast.error(error.response?.data?.message || "Failed to fetch profile");
-		return rejectWithValue(error.response?.data || { message: "Failed to fetch profile" });
-	}
+    try {
+        const config = await prepareAuthRequest();
+        if (!config) {
+            return rejectWithValue({ message: "Authentication failed" });
+        }
+        const response = await axiosInstance.get(`/users/profile?r=${Math.random()}`, {
+            ...config,
+            headers: {
+                ...config.headers,
+                "Cache-Control": "no-cache"
+            }
+        });
+        return response.data;
+    } catch (error) {
+        toast.error(error.response?.data?.message || "Failed to fetch profile");
+        return rejectWithValue(error.response?.data || { message: "Failed to fetch profile" });
+    }
 });
 
 // Create async thunk for forgot password
@@ -322,28 +299,6 @@ const userAuthSlice = createSlice({
 			.addCase(loginUser.rejected, (state, action) => {
 				state.loading = false;
 				state.error = action.payload?.message || "Login failed";
-				state.success = false;
-			})
-
-			// Check auth status cases
-			.addCase(checkAuthStatus.pending, (state) => {
-				state.loading = true;
-				state.error = null;
-			})
-			.addCase(checkAuthStatus.fulfilled, (state, action) => {
-				state.loading = false;
-				if (action.payload) {
-					state.user = action.payload.message; // Adjust this path if needed based on your API response
-					state.success = true;
-				} else {
-					state.user = null;
-					state.success = false;
-				}
-				state.error = null;
-			})
-			.addCase(checkAuthStatus.rejected, (state) => {
-				state.loading = false;
-				state.user = null;
 				state.success = false;
 			})
 

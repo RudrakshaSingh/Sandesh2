@@ -1,12 +1,12 @@
-/* eslint-disable no-useless-escape */
+ 
+import { initializeApp } from 'firebase/app';
+import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { KeyRound, Mail } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
-import { loginUser, resetUserState } from '../../Redux/Slices/UserAuth';
+import { loginUser } from '../../Redux/Slices/UserAuth';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -36,12 +36,6 @@ function UserLogin() {
   const navigate = useNavigate();
   const { loading, success, error } = useSelector((state) => state.userAuth);
 
-  // Reset user state when component unmounts
-  useEffect(() => {
-    return () => {
-      dispatch(resetUserState());
-    };
-  }, [dispatch]);
 
   // Navigate on successful login
   useEffect(() => {

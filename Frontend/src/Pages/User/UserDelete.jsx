@@ -60,6 +60,11 @@ const UserDelete = () => {
       })
       .catch((error) => {
         // Error will be handled by the reducer and shown in UI
+        if (error === "Authentication failed") {
+          navigate('/user/login');
+        } else {
+          toast.error(error);
+        }
       });
   };
 
