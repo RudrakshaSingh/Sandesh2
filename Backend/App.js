@@ -7,6 +7,8 @@ import connectToDB from './db/db.js';
 import errorMiddleware from './Middlewares/errorMiddleware.js';
 import userRoutes from './Routes/user.routes.js';
 import morgan from 'morgan';
+import contactRoutes from './Routes/contact.routes.js';
+import invitationRoutes from './Routes/invitation.routes.js';
 
 dotenv.config();
 const app = express();
@@ -29,6 +31,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/users', userRoutes);
+app.use("/contacts", contactRoutes);
+app.use("/invitations", invitationRoutes);
 
 // Use the error handling middleware
 app.use(errorMiddleware);
