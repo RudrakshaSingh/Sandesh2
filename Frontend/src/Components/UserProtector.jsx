@@ -58,7 +58,7 @@ const UserProtector = ({ children }) => {
     if (!authFailed) {
       toast.error("Please log in to access this page");
     }
-    return <Navigate to="/user/login" replace />;
+    return <Navigate to="/access-denied" replace />;
   }
 
   return children;
