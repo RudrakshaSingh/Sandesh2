@@ -5,6 +5,7 @@ import UserProtector from './Components/UserProtector';
 import AboutUs from './Pages/AboutUs';
 import WeddingCardGallery from './Pages/Cards/WeddingCards';
 import PrivacyPolicy from './Pages/CompanyPolicy/PrivacyPolicy';
+import TermsAndConditions from './Pages/CompanyPolicy/TermsAndConditions';
 import ContactUs from './Pages/ContactUs';
 import CreateCard from './Pages/CreateCard';
 import Home from './Pages/Home';
@@ -32,6 +33,7 @@ function App() {
       <Route path = '/create-card' element  = {<UserProtector><CreateCard/></UserProtector>}/>
       <Route path = '/user/profile' element = {<UserProtector><UserProfilePage/></UserProtector>}/>
       <Route path = '/privacy-policy' element = {<PrivacyPolicy/>}/>
+      <Route path = '/terms-and-conditions' element = {<TermsAndConditions/>}/>
       <Route path = '/about-us' element = {<AboutUs/>}/>
       <Route path = '/contact-us' element = {<ContactUs/>}/>
       <Route path = '/templates/wedding-card' element = {<WeddingCardGallery/>}/>

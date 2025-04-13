@@ -1,6 +1,6 @@
-import { ChevronDown, CircleUserRound,LogOut, Mail, Menu, User, X } from 'lucide-react';
+import { ChevronDown, CircleUserRound, LogOut, Mail, Menu, User, X, Calendar, Gift, Briefcase, Flag } from 'lucide-react';
 import React, { useState } from 'react';
-import { useDispatch,useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { logoutUser } from '../../Redux/Slices/UserAuth';
@@ -9,6 +9,7 @@ const HeaderDrawer = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState(null);
 
   // Get auth state from Redux
   const { user, success } = useSelector((state) => state.userAuth);
@@ -36,6 +37,72 @@ const HeaderDrawer = () => {
     navigate('/');
   };
 
+  const handleCategoryHover = (category) => {
+    setActiveCategory(category);
+  };
+
+  const templateCategories = [
+    {
+      id: 'events',
+      name: 'Events & Celebrations',
+      icon: <Calendar className="h-4 w-4 mr-2" />,
+      subcategories: [
+        { name: 'Wedding Invitations', path: '/templates/wedding-card' },
+        { name: 'Engagement Announcements', path: '/templates/engagement' },
+        { name: 'Birthday Invites', path: '/templates/birthday' },
+        { name: 'Baby Shower / Naming Ceremony', path: '/templates/baby-shower' },
+        { name: 'Anniversary Celebrations', path: '/templates/anniversary' },
+        { name: 'Housewarming Invites', path: '/templates/housewarming' },
+        { name: 'Retirement Party Invites', path: '/templates/retirement' },
+        { name: 'Graduation Celebrations', path: '/templates/graduation' },
+      ]
+    },
+    {
+      id: 'festivals',
+      name: 'Festivals',
+      icon: <Gift className="h-4 w-4 mr-2" />,
+      subcategories: [
+        { name: 'Diwali Greetings', path: '/templates/diwali' },
+        { name: 'Eid Mubarak Cards', path: '/templates/eid' },
+        { name: 'Holi Wishes', path: '/templates/holi' },
+        { name: 'Christmas Cards', path: '/templates/christmas' },
+        { name: 'Raksha Bandhan / Bhai Dooj', path: '/templates/raksha-bandhan' },
+        { name: 'Navratri / Durga Puja', path: '/templates/navratri' },
+        { name: 'Pongal / Makar Sankranti', path: '/templates/pongal' },
+        { name: 'Lohri / Baisakhi / Onam', path: '/templates/regional-festivals' },
+      ]
+    },
+    {
+      id: 'personal',
+      name: 'Personal & Professional',
+      icon: <Briefcase className="h-4 w-4 mr-2" />,
+      subcategories: [
+        { name: 'Thank You Cards', path: '/templates/thank-you' },
+        { name: 'Get Well Soon', path: '/templates/get-well' },
+        { name: 'Sorry / Apology Cards', path: '/templates/apology' },
+        { name: 'Farewell Notes', path: '/templates/farewell' },
+        { name: 'New Job / Promotion Cards', path: '/templates/promotion' },
+        { name: 'Love Notes / Proposal Cards', path: '/templates/love' },
+        { name: 'Condolences / RIP Cards', path: '/templates/condolences' },
+        { name: 'Professional Greetings', path: '/templates/professional' },
+      ]
+    },
+    {
+      id: 'special',
+      name: 'Special Days',
+      icon: <Flag className="h-4 w-4 mr-2" />,
+      subcategories: [
+        { name: 'Valentine\'s Day', path: '/templates/valentines' },
+        { name: 'Mother\'s Day / Father\'s Day', path: '/templates/parents-day' },
+        { name: 'Teacher\'s Day', path: '/templates/teachers-day' },
+        { name: 'Children\'s Day', path: '/templates/childrens-day' },
+        { name: 'Independence / Republic Day', path: '/templates/national-days' },
+        { name: 'Women\'s Day', path: '/templates/womens-day' },
+        { name: 'New Year Greetings', path: '/templates/new-year' },
+      ]
+    }
+  ];
+
   return (
     <header className="bg-amber-600 text-white shadow-md">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -56,22 +123,60 @@ const HeaderDrawer = () => {
               <li className="relative">
                 <button
                   onClick={toggleDropdown}
+                  onMouseEnter={() => setIsDropdownOpen(true)}
                   className="text-white hover:text-amber-100 py-2 flex items-center transition duration-150"
                 >
                   Templates
                   <ChevronDown className="ml-1 h-4 w-4" />
                 </button>
                 {isDropdownOpen && (
-                  <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                    <Link to="/templates/wedding-card" className="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50">
-                      Wedding
-                    </Link>
-                    <Link to="/templates/festivals" className="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50">
-                      Festivals
-                    </Link>
-                    <Link to="/templates/corporate" className="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50">
-                      Corporate
-                    </Link>
+                  <div
+                    className="absolute left-0 mt-2 w-max bg-white rounded-md shadow-lg py-1 z-20 flex"
+                    onMouseLeave={() => {
+                      setIsDropdownOpen(false);
+                      setActiveCategory(null);
+                    }}
+                  >
+                    {/* Categories */}
+                    <div className="w-64 bg-gray-50 border-r border-gray-200">
+                      {templateCategories.map((category) => (
+                        <button
+                          key={category.id}
+                          className={`block w-full text-left px-4 py-3 text-sm ${
+                            activeCategory === category.id
+                              ? 'bg-amber-100 text-amber-800'
+                              : 'text-gray-700 hover:bg-amber-50'
+                          } flex items-center`}
+                          onMouseEnter={() => handleCategoryHover(category.id)}
+                        >
+                          {category.icon}
+                          {category.name}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Subcategories */}
+                    {activeCategory && (
+                      <div className="w-64 py-2">
+                        <h3 className="px-4 py-2 text-sm font-medium text-amber-800 border-b border-gray-200">
+                          {templateCategories.find(cat => cat.id === activeCategory).name}
+                        </h3>
+                        <div className="grid grid-cols-1 gap-1 pt-2">
+                          {templateCategories
+                            .find(cat => cat.id === activeCategory)
+                            .subcategories.map((subcategory, index) => (
+                              <Link
+                                key={index}
+                                to={subcategory.path}
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50"
+                              >
+                                {subcategory.name}
+                              </Link>
+                            ))
+                          }
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </li>
@@ -87,7 +192,7 @@ const HeaderDrawer = () => {
               </li>
               <li>
                 <Link to="/contact-us" className="text-white hover:text-amber-100 py-2 transition duration-150">
-                  contact
+                  Contact
                 </Link>
               </li>
             </ul>
@@ -100,39 +205,41 @@ const HeaderDrawer = () => {
                 <button
                   onClick={toggleProfileDropdown}
                   onMouseEnter={() => setIsProfileDropdownOpen(true)}
-
                   className="flex items-center justify-center text-white hover:text-amber-100 transition duration-150"
                 >
                   <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center mr-2">
-                        <img src={user.profileImage} className="w-full h-full rounded-full"  alt="" srcset="" />
+                    {user.profileImage ? (
+                      <img src={user.profileImage} className="w-full h-full rounded-full" alt="Profile" />
+                    ) : (
+                      <User className="h-4 w-4 text-white" />
+                    )}
                   </div>
-                  <span className="hidden lg:inline">{user?.fullname?.firstname.toUpperCase() || 'My Account'}</span>
+                  <span className="hidden lg:inline">{user?.fullname?.firstname?.toUpperCase() || 'My Account'}</span>
                   <ChevronDown className="ml-1 h-5 w-5 font-bold" />
                 </button>
 
                 {isProfileDropdownOpen && (
-      <div
-    className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10"
-    onMouseLeave={() => setIsProfileDropdownOpen(false)}
-
-  >
-    <Link to="/user/profile" className=" px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 flex items-center">
-      <CircleUserRound className="h-4 w-4 mr-2 text-amber-600" />
-      My Profile
-    </Link>
-    <Link to="/my-invitations" className=" px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 flex items-center">
-      <Mail className="h-4 w-4 mr-2 text-amber-600" />
-      My Invitations
-    </Link>
-    <button
-      onClick={handleLogout}
-      className="w-full text-left  px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 flex items-center"
-    >
-      <LogOut className="h-4 w-4 mr-2 text-amber-600" />
-      Logout
-    </button>
-  </div>
-)}
+                  <div
+                    className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10"
+                    onMouseLeave={() => setIsProfileDropdownOpen(false)}
+                  >
+                    <Link to="/user/profile" className="px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 flex items-center">
+                      <CircleUserRound className="h-4 w-4 mr-2 text-amber-600" />
+                      My Profile
+                    </Link>
+                    <Link to="/my-invitations" className="px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 flex items-center">
+                      <Mail className="h-4 w-4 mr-2 text-amber-600" />
+                      My Invitations
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 flex items-center"
+                    >
+                      <LogOut className="h-4 w-4 mr-2 text-amber-600" />
+                      Logout
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <>
@@ -172,31 +279,59 @@ const HeaderDrawer = () => {
             <Link to="/" className="block px-3 py-2 text-white hover:bg-amber-600 rounded-md">
               Home
             </Link>
-            <button
-              onClick={toggleDropdown}
-              className="w-full text-left px-3 py-2 text-white hover:bg-amber-600 rounded-md flex items-center justify-between"
-            >
-              Templates
-              <ChevronDown className="h-4 w-4" />
-            </button>
-            {isDropdownOpen && (
-              <div className="pl-4 space-y-1">
-                <Link to="/templates/wedding" className="block px-3 py-2 text-amber-100 hover:bg-amber-600 rounded-md text-sm">
-                  Wedding
-                </Link>
-                <Link to="/templates/festivals" className="block px-3 py-2 text-amber-100 hover:bg-amber-600 rounded-md text-sm">
-                  Festivals
-                </Link>
-                <Link to="/templates/corporate" className="block px-3 py-2 text-amber-100 hover:bg-amber-600 rounded-md text-sm">
-                  Corporate
-                </Link>
-              </div>
-            )}
+
+            {/* Mobile Templates Dropdown */}
+            <div className="space-y-1">
+              <button
+                onClick={toggleDropdown}
+                className="w-full text-left px-3 py-2 text-white hover:bg-amber-600 rounded-md flex items-center justify-between"
+              >
+                Templates
+                <ChevronDown className={`h-4 w-4 transform ${isDropdownOpen ? 'rotate-180' : ''} transition-transform duration-200`} />
+              </button>
+
+              {isDropdownOpen && (
+                <div className="pl-3 space-y-2">
+                  {templateCategories.map((category) => (
+                    <div key={category.id} className="space-y-1">
+                      <button
+                        onClick={() => setActiveCategory(activeCategory === category.id ? null : category.id)}
+                        className="w-full text-left px-3 py-2 text-amber-100 hover:bg-amber-600 rounded-md text-sm flex items-center justify-between"
+                      >
+                        <span className="flex items-center">
+                          {category.icon}
+                          {category.name}
+                        </span>
+                        <ChevronDown className={`h-3 w-3 transform ${activeCategory === category.id ? 'rotate-180' : ''} transition-transform duration-200`} />
+                      </button>
+
+                      {activeCategory === category.id && (
+                        <div className="pl-4 space-y-1">
+                          {category.subcategories.map((subcategory, index) => (
+                            <Link
+                              key={index}
+                              to={subcategory.path}
+                              className="block px-3 py-1.5 text-amber-200 hover:bg-amber-600 hover:text-white rounded-md text-xs"
+                            >
+                              {subcategory.name}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <Link to="/create-card" className="block px-3 py-2 text-white hover:bg-amber-600 rounded-md">
               Create
             </Link>
             <Link to="/about-us" className="block px-3 py-2 text-white hover:bg-amber-600 rounded-md">
               About
+            </Link>
+            <Link to="/contact-us" className="block px-3 py-2 text-white hover:bg-amber-600 rounded-md">
+              Contact
             </Link>
 
             {/* Mobile Authentication */}
@@ -205,25 +340,31 @@ const HeaderDrawer = () => {
                 <>
                   <div className="flex items-center px-3 py-2">
                     <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center mr-2">
-                      <User className="h-4 w-4" />
+                      {user.profileImage ? (
+                        <img src={user.profileImage} className="w-full h-full rounded-full" alt="Profile" />
+                      ) : (
+                        <User className="h-4 w-4 text-white" />
+                      )}
                     </div>
                     <div>
-                      <p className="text-white font-medium">{user.name || 'User'}</p>
-                      <p className="text-amber-200 text-xs">{user.email || ''}</p>
+                      <p className="text-white font-medium">
+                        {user?.fullname?.firstname || 'User'}
+                      </p>
+                      <p className="text-amber-200 text-xs">{user?.email || ''}</p>
                     </div>
                   </div>
                   <div className="mt-3 space-y-1">
-                    <Link to="/user/profile" className=" px-3 py-2 text-white hover:bg-amber-600 rounded-md flex items-center">
+                    <Link to="/user/profile" className="px-3 py-2 text-white hover:bg-amber-600 rounded-md flex items-center">
                       <CircleUserRound className="h-4 w-4 mr-2" />
                       My Profile
                     </Link>
-                    <Link to="/my-invitations" className=" px-3 py-2 text-white hover:bg-amber-600 rounded-md flex items-center">
+                    <Link to="/my-invitations" className="px-3 py-2 text-white hover:bg-amber-600 rounded-md flex items-center">
                       <Mail className="h-4 w-4 mr-2" />
                       My Invitations
                     </Link>
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left  px-3 py-2 text-white hover:bg-amber-600 rounded-md flex items-center"
+                      className="w-full text-left px-3 py-2 text-white hover:bg-amber-600 rounded-md flex items-center"
                     >
                       <LogOut className="h-4 w-4 mr-2" />
                       Logout
