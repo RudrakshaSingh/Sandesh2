@@ -1,9 +1,9 @@
+import * as fabric from 'fabric';// You'll need to install this: npm install fabric
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import Layout from '../Components/Layout/Layout';
-import * as fabric from 'fabric';// You'll need to install this: npm install fabric
 
 const CreateCard = () => {
   const canvasRef = useRef(null);

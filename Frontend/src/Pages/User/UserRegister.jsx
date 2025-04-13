@@ -1,15 +1,15 @@
 /* eslint-disable no-useless-escape */
-import { Camera, Key, Mail, MapPin, Phone, Upload, User } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
-import Webcam from "react-webcam";
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
+import { Camera, Key, Mail, MapPin, Phone, Upload, User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import Webcam from "react-webcam";
 
 import { registerUser, resetUserState } from "../../Redux/Slices/UserAuth";
 
