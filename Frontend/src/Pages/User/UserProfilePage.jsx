@@ -4,12 +4,12 @@ import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import { changePassword, getUserProfile, updateUserProfile } from '../../Redux/Slices/UserAuth';
+import { getUserProfile, updateUserProfile } from '../../Redux/Slices/UserAuth';
 
 const UserProfilePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, loading, error, success } = useSelector((state) => state.userAuth);
+  const { user, loading, error } = useSelector((state) => state.userAuth);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     firstname: '',
@@ -143,8 +143,14 @@ const UserProfilePage = () => {
           setIsEditing(false);
         })
         .catch((error) => {
+
           // Errors from the API will be handled by the reducer
           // No need to change editing state
+          if (error === "Authentication failed") {
+            navigate('/user/login');
+          } else {
+            toast.error(error);
+          }
         });
     } else {
       // No changes were made
