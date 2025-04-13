@@ -63,7 +63,7 @@ const HeaderDrawer = () => {
                 </button>
                 {isDropdownOpen && (
                   <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                    <Link to="/templates/wedding" className="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50">
+                    <Link to="/templates/wedding-card" className="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50">
                       Wedding
                     </Link>
                     <Link to="/templates/festivals" className="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50">
