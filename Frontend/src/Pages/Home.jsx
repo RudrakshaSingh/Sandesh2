@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChevronRight, PenTool, Video, Mail, Globe, ArrowRight, Calendar, Heart, Gift, Clock, Check } from 'lucide-react';
 import Layout from '../Components/Layout/Layout';
+import ChatBot from './ChatBot';
 
 const Home = () => {
   const features = [
@@ -239,6 +240,7 @@ const Home = () => {
           ))}
         </div>
       </section>
+      <ChatBot />
 
       {/* Popular Event Categories */}
       <section className="py-12 bg-gray-50">

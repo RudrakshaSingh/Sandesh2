@@ -20,6 +20,7 @@ import UserNewPassword from './Pages/User/UserNewPassword';
 import UserProfilePage from './Pages/User/UserProfilePage';
 import UserRegister from './Pages/User/UserRegister';
 import { getUserProfile } from './Redux/Slices/UserAuth';
+import Main from './Pages/ChatBot'
 
 
 function App() {
