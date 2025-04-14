@@ -5,6 +5,7 @@ import { Route, Routes } from "react-router-dom";
 import UserProtector from './Components/UserProtector';
 import AboutUs from './Pages/AboutUs';
 import Cards from './Pages/Cards/Cards';
+import Main from './Pages/ChatBot'
 import PrivacyPolicy from './Pages/CompanyPolicy/PrivacyPolicy';
 import TermsAndConditions from './Pages/CompanyPolicy/TermsAndConditions';
 import ContactUs from './Pages/ContactUs';
@@ -20,7 +21,6 @@ import UserNewPassword from './Pages/User/UserNewPassword';
 import UserProfilePage from './Pages/User/UserProfilePage';
 import UserRegister from './Pages/User/UserRegister';
 import { getUserProfile } from './Redux/Slices/UserAuth';
-import Main from './Pages/ChatBot'
 
 
 function App() {
