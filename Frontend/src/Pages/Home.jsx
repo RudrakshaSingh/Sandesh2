@@ -1,5 +1,6 @@
+import { ArrowRight, Calendar, Check,ChevronRight, Clock, Gift, Globe, Heart, Mail, PenTool, Video } from 'lucide-react';
 import React from 'react';
-import { ChevronRight, PenTool, Video, Mail, Globe, ArrowRight, Calendar, Heart, Gift, Clock, Check } from 'lucide-react';
+
 import Layout from '../Components/Layout/Layout';
 import ChatBot from './ChatBot';
 
