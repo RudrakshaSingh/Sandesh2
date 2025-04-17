@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Trash2, Edit, Search, X, Plus, Upload, Check, Info, User, Phone, Users, MapPin } from 'lucide-react';
+import { Calendar, CheckCircle,Mail, Plus, Send, Trash, Type, User } from "lucide-react";
+import React, { useState } from "react";
 
 function SendInvitation() {
   // Expanded dummy data for contacts (10 contacts) with address field
