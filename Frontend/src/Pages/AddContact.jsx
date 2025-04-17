@@ -1,34 +1,32 @@
-import { Calendar, Check, CheckCircle,Edit,Info,Mail, MapPin, Phone, Plus, Search, Send, Trash, Trash2, Type, Upload, User, Users } from "lucide-react";
-import React, { useState } from "react";
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
+import { Calendar, Check, CheckCircle, Edit, Info, Mail, MapPin, Phone, Plus, Search, Send, Trash, Trash2, Type, Upload, User, Users, X } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import { addContact } from "../Redux/Slices/ContactAuth";
-
+import { addContact, getContacts, updateContact, deleteContact } from "../Redux/Slices/ContactAuth";
 
 function AddContact() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { contact = [] } = useSelector((state) => state?.contactAuth);
 
-  // Expanded dummy data for contacts (10 contacts) with address field
-  const dummyContacts = [
-    { id: 1, name: "John Smith", mobileNumber: "123-456-7890", relation: "Friend", address: "123 Main St, New York, NY 10001" },
-    { id: 2, name: "Sarah Johnson", mobileNumber: "234-567-8901", relation: "Family", address: "456 Oak Ave, Chicago, IL 60601" },
-    { id: 3, name: "Michael Brown", mobileNumber: "345-678-9012", relation: "Relative", address: "789 Pine Rd, Los Angeles, CA 90001" },
-    { id: 4, name: "Emily Wilson", mobileNumber: "456-789-0123", relation: "Other", address: "321 Maple Dr, Houston, TX 77001" },
-    { id: 5, name: "David Thompson", mobileNumber: "567-890-1234", relation: "Friend", address: "654 Cedar Ln, Miami, FL 33101" },
-    { id: 6, name: "Jessica Parker", mobileNumber: "678-901-2345", relation: "Family", address: "987 Birch Blvd, Seattle, WA 98101" },
-    { id: 7, name: "Robert Miller", mobileNumber: "789-012-3456", relation: "Relative", address: "246 Elm St, Boston, MA 02101" },
-    { id: 8, name: "Jennifer Davis", mobileNumber: "890-123-4567", relation: "Friend", address: "135 Walnut Ave, Denver, CO 80201" },
-    { id: 9, name: "Thomas Wilson", mobileNumber: "901-234-5678", relation: "Other", address: "864 Spruce St, Atlanta, GA 30301" },
-    { id: 10, name: "Lisa Anderson", mobileNumber: "012-345-6789", relation: "Family", address: "579 Redwood Rd, San Francisco, CA 94101" },
-  ];
+  // Fetch contacts on component mount
+  useEffect(() => {
+    dispatch(getContacts());
+  }, [dispatch]);
 
-  // State to store contacts fetched from backend
-  const [contacts, setContacts] = useState(dummyContacts);
-  // State for form inputs
+  console.log('contact', contact);
+
+  const [contacts, setContacts] = useState([]);
+
+  // Update contacts state when contact from redux changes
+  useEffect(() => {
+    if (contact && contact.length > 0) {
+      setContacts(contact);
+      setFilteredContacts(contact);
+    }
+  }, [contact]);
+
   const [formData, setFormData] = useState({
     name: '',
     mobileNumber: '',
@@ -37,10 +35,9 @@ function AddContact() {
   });
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredContacts, setFilteredContacts] = useState(dummyContacts);
+  const [filteredContacts, setFilteredContacts] = useState([]);
   const [editingContact, setEditingContact] = useState(null);
   const [expandedContact, setExpandedContact] = useState(null);
-
   const relationOptions = ["Friend", "Family", "Relative", "Other"];
 
   // Handle search input change
@@ -61,10 +58,51 @@ function AddContact() {
     }
   };
 
-  // Update filtered contacts when contacts change
-  useEffect(() => {
-    setFilteredContacts(contacts);
-  }, [contacts]);
+  // Toggle expanded contact details
+  const toggleContactDetails = (contactId) => {
+    if (expandedContact === contactId) {
+      setExpandedContact(null);
+    } else {
+      setExpandedContact(contactId);
+    }
+  };
+
+  // Handle edit contact
+  const handleEditContact = (contact) => {
+    setEditingContact(contact);
+    setFormData({
+      name: contact.name,
+      mobileNumber: contact.mobileNumber,
+      relation: contact.relation,
+      address: contact.address || ''
+    });
+  };
+
+  // Handle cancel edit
+  const handleCancelEdit = () => {
+    setEditingContact(null);
+    setFormData({
+      name: '',
+      mobileNumber: '',
+      relation: '',
+      address: ''
+    });
+  };
+
+  // Handle delete contact
+  const handleDeleteContact = (contactId) => {
+    if (window.confirm('Are you sure you want to delete this contact?')) {
+      dispatch(deleteContact(contactId))
+        .then(() => {
+          // After successful deletion, update the local state
+          setContacts(contacts.filter(c => c._id !== contactId));
+          setFilteredContacts(filteredContacts.filter(c => c._id !== contactId));
+        })
+        .catch(error => {
+          console.error('Error deleting contact:', error);
+        });
+    }
+  };
 
   // Handle input changes for form
   const handleChange = (e) => {
@@ -77,10 +115,47 @@ function AddContact() {
 
   // Handle form submission
   const handleSubmit = async (e) => {
-    dispatch(addContact(formData));
     e.preventDefault();
 
-
+    if (editingContact) {
+      // Update existing contact
+      dispatch(updateContact({
+        contactId: editingContact._id,
+        contactData: formData
+      }))
+        .then(() => {
+          // Reset form and editing state
+          setFormData({
+            name: '',
+            mobileNumber: '',
+            relation: '',
+            address: ''
+          });
+          setEditingContact(null);
+          // Refetch contacts to update the list
+          dispatch(getContacts());
+        })
+        .catch(error => {
+          console.error('Error updating contact:', error);
+        });
+    } else {
+      // Add new contact
+      dispatch(addContact(formData))
+        .then(() => {
+          // Reset form
+          setFormData({
+            name: '',
+            mobileNumber: '',
+            relation: '',
+            address: ''
+          });
+          // Refetch contacts to update the list
+          dispatch(getContacts());
+        })
+        .catch(error => {
+          console.error('Error adding contact:', error);
+        });
+    }
   };
 
   return (
@@ -150,10 +225,10 @@ function AddContact() {
           ) : (
             <div className="overflow-y-auto" style={{ maxHeight: "400px" }}>
               {filteredContacts.map((contact) => (
-                <div key={contact.id} className="border-b border-gray-100 last:border-0">
+                <div key={contact._id} className="border-b border-gray-100 last:border-0">
                   <div
                     className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
-                    onClick={() => toggleContactDetails(contact.id)}
+                    onClick={() => toggleContactDetails(contact._id)}
                   >
                     <div className="flex justify-between items-center">
                       <div className="flex items-center">
@@ -195,7 +270,7 @@ function AddContact() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDeleteContact(contact.id);
+                            handleDeleteContact(contact._id);
                           }}
                           className="p-1 text-gray-500 hover:text-red-600 transition-colors rounded-full hover:bg-red-50"
                           title="Delete Contact"
@@ -206,7 +281,7 @@ function AddContact() {
                     </div>
 
                     {/* Expanded Contact Details */}
-                    {expandedContact === contact.id && (
+                    {expandedContact === contact._id && (
                       <div className="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
                         {contact.address && (
                           <div className="flex items-start">
