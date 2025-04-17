@@ -8,6 +8,7 @@ import {
 	LogOut,
 	Mail,
 	Menu,
+	Phone,
 	User,
 	X,
 } from "lucide-react";
@@ -239,13 +240,19 @@ const HeaderDrawer = () => {
 
 								{isProfileDropdownOpen && (
 									<div
-										className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10"
+										className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20"
 										onMouseLeave={() => setIsProfileDropdownOpen(false)}>
 										<Link
 											to="/user/profile"
 											className="px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 flex items-center">
 											<CircleUserRound className="h-4 w-4 mr-2 text-amber-600" />
 											My Profile
+										</Link>
+										<Link
+											to="/user/add-contacts"
+											className="px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 flex items-center">
+											<Phone className="h-4 w-4 mr-2 text-amber-600" />
+											My Contacts
 										</Link>
 										<Link
 											to="/my-invitations"
@@ -287,7 +294,7 @@ const HeaderDrawer = () => {
 
 			{/* Mobile menu */}
 			{isMenuOpen && (
-				<div className="md:hidden">
+				<div className="md:hidden ">
 					<div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-amber-700">
 						<Link to="/" className="block px-3 py-2 text-white hover:bg-amber-600 rounded-md">
 							Home
@@ -385,6 +392,12 @@ const HeaderDrawer = () => {
 											className="px-3 py-2 text-white hover:bg-amber-600 rounded-md flex items-center">
 											<CircleUserRound className="h-4 w-4 mr-2" />
 											My Profile
+										</Link>
+										<Link
+											to="/user/add-contacts"
+											className="px-3 py-2 text-white hover:bg-amber-600 rounded-md flex items-center">
+											<Phone className="h-4 w-4 mr-2" />
+											My Contacts
 										</Link>
 										<Link
 											to="/my-invitations"

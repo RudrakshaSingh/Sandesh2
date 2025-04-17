@@ -1,7 +1,17 @@
-import { Check, Edit, Info, MapPin,Phone, Plus, Search, Trash2, Upload, User, Users, X } from 'lucide-react';
-import React, { useEffect,useState } from 'react';
+import { Calendar, Check, CheckCircle,Edit,Info,Mail, MapPin, Phone, Plus, Search, Send, Trash, Trash2, Type, Upload, User, Users } from "lucide-react";
+import React, { useState } from "react";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
-function SendInvitation() {
+import { addContact } from "../Redux/Slices/ContactAuth";
+
+
+function AddContact() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   // Expanded dummy data for contacts (10 contacts) with address field
   const dummyContacts = [
     { id: 1, name: "John Smith", mobileNumber: "123-456-7890", relation: "Friend", address: "123 Main St, New York, NY 10001" },
@@ -67,77 +77,16 @@ function SendInvitation() {
 
   // Handle form submission
   const handleSubmit = async (e) => {
+    dispatch(addContact(formData));
     e.preventDefault();
 
-    if (editingContact) {
-      const updatedContacts = contacts.map(contact =>
-        contact.id === editingContact.id ? { ...contact, ...formData } : contact
-      );
-      setContacts(updatedContacts);
-      setEditingContact(null);
-    } else {
-      const newId = Date.now();
 
-      const newContact = {
-        id: newId,
-        ...formData
-      };
-      // Add to contacts
-      const updatedContacts = [...contacts, newContact];
-      setContacts(updatedContacts);
-    }
-
-    // Reset form
-    setFormData({ name: '', mobileNumber: '', relation: '', address: '' });
-  };
-
-  // Handle edit contact
-  const handleEditContact = (contact) => {
-    setEditingContact(contact);
-    setFormData({
-      name: contact.name,
-      mobileNumber: contact.mobileNumber,
-      relation: contact.relation,
-      address: contact.address || ''
-    });
-  };
-
-  // Handle delete contact
-  const handleDeleteContact = (contactId) => {
-    const updatedContacts = contacts.filter(contact => contact.id !== contactId);
-    setContacts(updatedContacts);
-
-    // If we're editing the contact that's being deleted, clear the form
-    if (editingContact && editingContact.id === contactId) {
-      setEditingContact(null);
-      setFormData({ name: '', mobileNumber: '', relation: '', address: '' });
-    }
-
-    // If we're expanding the contact that's being deleted, clear the expanded state
-    if (expandedContact === contactId) {
-      setExpandedContact(null);
-    }
-  };
-
-  // Cancel editing
-  const handleCancelEdit = () => {
-    setEditingContact(null);
-    setFormData({ name: '', mobileNumber: '', relation: '', address: '' });
-  };
-
-  // Toggle expanded contact details
-  const toggleContactDetails = (contactId) => {
-    if (expandedContact === contactId) {
-      setExpandedContact(null);
-    } else {
-      setExpandedContact(contactId);
-    }
   };
 
   return (
     <div className="max-w-6xl mx-auto p-6 bg-gray-50">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-center text-gray-800">Send Invitation</h1>
+        <h1 className="text-3xl font-bold text-center text-gray-800">Add Contacts</h1>
         <p className="text-center text-gray-600 mt-2">Manage your contacts and send invitations</p>
       </div>
 
@@ -439,4 +388,4 @@ function SendInvitation() {
   );
 }
 
-export default SendInvitation;
+export default AddContact;
