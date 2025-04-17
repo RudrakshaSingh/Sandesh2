@@ -26,6 +26,11 @@ const contactSchema = new mongoose.Schema(
             type: String,
             trim: true,
         },
+        relation:{
+            type: String,
+            trim: true,
+            enum: ["Family", "Friend", "Relative", "Other"]
+        }
     },
     { timestamps: true }
 );

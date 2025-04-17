@@ -5,9 +5,9 @@ import { verifyJWT } from "../Middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-router.post("/", verifyJWT, addContact);
-router.get("/", verifyJWT, getContacts);
-router.put("/:contactId", verifyJWT, updateContact);
-router.delete("/:contactId", verifyJWT, deleteContact);
+router.post("/add-contact", verifyJWT, addContact);
+router.get("/contacts-list", verifyJWT, getContacts);
+router.put("/update-contact/:contactId", verifyJWT, updateContact);
+router.delete("/delete-contact/:contactId", verifyJWT, deleteContact);
 
 export default router;

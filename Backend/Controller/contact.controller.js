@@ -6,25 +6,31 @@ import contactModel from "../Models/contact.model.js";
 import invitationModel from "../Models/invitation.model.js";
 
 export const addContact = asyncHandler(async (req, res, next) => {
-    const { name, email, phone, address } = req.body;
+    const { name, phone, address,relation } = req.body;
     const userId = req.user?._id;
 
     if (!name || name.trim() === "") {
         return next(new ApiError(400, "Name is required"));
     }
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        return next(new ApiError(400, "Invalid email format"));
-    }
     if (phone && !/^\d{10}$/.test(phone)) {
         return next(new ApiError(400, "Phone number must be exactly 10 digits"));
+    }
+    const validRelations = ["Family", "Friend", "Relative", "Other"];
+    if (!relation || !validRelations.includes(relation)) {
+        return next(new ApiError(400, "Please provide a valid relation (Family, Friend, Relative, Other)"));
+    }
+
+    const existingContact = await contactModel.findOne({ user: userId, phone: phone ? phone.trim() : undefined });
+    if (existingContact) {
+        return next(new ApiError(400, "Contact with this phone number already exists"));
     }
 
     const contact = await contactModel.create({
         user: userId,
         name: name.trim(),
-        email: email ? email.trim() : undefined,
         phone: phone ? phone.trim() : undefined,
         address: address ? address.trim() : undefined,
+        relation:relation ? relation.trim() : undefined,
     });
 
     return res.status(201).json(new ApiResponse(201, "Contact added successfully", contact));
@@ -39,26 +45,27 @@ export const getContacts = asyncHandler(async (req, res, next) => {
 
 export const updateContact = asyncHandler(async (req, res, next) => {
     const { contactId } = req.params;
-    const { name, email, phone, address } = req.body;
+    const { name,  phone, address,relation } = req.body;
     const userId = req.user?._id;
 
     if (!name || name.trim() === "") {
         return next(new ApiError(400, "Name is required"));
     }
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        return next(new ApiError(400, "Invalid email format"));
-    }
     if (phone && !/^\d{10}$/.test(phone)) {
         return next(new ApiError(400, "Phone number must be exactly 10 digits"));
+    }
+    const validRelations = ["Family", "Friend", "Relative", "Other"];
+    if (!relation || !validRelations.includes(relation)) {
+        return next(new ApiError(400, "Please provide a valid relation (Family, Friend, Relative, Other)"));
     }
 
     const contact = await contactModel.findOneAndUpdate(
         { _id: contactId, user: userId },
         {
             name: name.trim(),
-            email: email ? email.trim() : undefined,
             phone: phone ? phone.trim() : undefined,
             address: address ? address.trim() : undefined,
+            relation:relation ? relation.trim() : undefined
         },
         { new: true }
     );
