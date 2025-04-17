@@ -21,6 +21,7 @@ import UserNewPassword from './Pages/User/UserNewPassword';
 import UserProfilePage from './Pages/User/UserProfilePage';
 import UserRegister from './Pages/User/UserRegister';
 import { getUserProfile } from './Redux/Slices/UserAuth';
+import SendInvitation from './Pages/SendInvitation';
 
 
 function App() {
@@ -55,6 +56,7 @@ function App() {
       <Route path="/cards" element={<Cards/>}/>
       <Route path="/templates/:type" element={<Cards/>}/>
       <Route path="/access-denied" element={<AccessDenied/>}/>
+      <Route path = "/send-invitation" element = {<SendInvitation/>}/>
       <Route path="*" element={<PageNotFound/>}/>
 
     </Routes>
