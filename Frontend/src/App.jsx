@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { Route, Routes } from "react-router-dom";
 
@@ -13,6 +13,7 @@ import CreateCard from './Pages/CreateCard';
 import AccessDenied from './Pages/Error/AccessDenied';
 import PageNotFound from './Pages/Error/PageNotFound';
 import Home from './Pages/Home';
+import SendInvitation from './Pages/SendInvitation';
 import UserChangePassword from './Pages/User/UserChangePassword';
 import UserDelete from './Pages/User/UserDelete';
 import UserForgotPassword from './Pages/User/UserForgotPassword';
@@ -21,20 +22,36 @@ import UserNewPassword from './Pages/User/UserNewPassword';
 import UserProfilePage from './Pages/User/UserProfilePage';
 import UserRegister from './Pages/User/UserRegister';
 import { getUserProfile } from './Redux/Slices/UserAuth';
-import SendInvitation from './Pages/SendInvitation';
 
 
 function App() {
   const dispatch = useDispatch();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
-      const accessToken = localStorage.getItem("accessToken");
-      const refreshToken = localStorage.getItem("refreshToken");
-
-      if (accessToken || refreshToken) {
-          dispatch(getUserProfile());
+    const checkAuth = async () => {
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+        const refreshToken = localStorage.getItem("refreshToken");
+        
+        if (accessToken || refreshToken) {
+          await dispatch(getUserProfile()).unwrap();
+        }
+      } catch (error) {
+        console.error("Authentication error:", error);
+        // Handle token refresh failure if needed
+      } finally {
+        setIsCheckingAuth(false);
       }
+    };
+    
+    checkAuth();
   }, [dispatch]);
+
+  // Show loading or nothing while checking authentication
+  if (isCheckingAuth) {
+    return <div>Loading...</div>; // Or return null, or a proper loading component
+  }
   return (
     <Routes>
       <Route path="/" element={<Home/>} />
