@@ -1,5 +1,5 @@
+import { Calendar, CheckCircle,Mail, Plus, Send, Trash, Type, User } from "lucide-react";
 import React, { useState } from "react";
-import { Send, Mail, User, Calendar, Type, Plus, Trash, CheckCircle } from "lucide-react";
 
 function SendInvitation() {
   const [recipients, setRecipients] = useState([{ name: "", email: "" }]);
