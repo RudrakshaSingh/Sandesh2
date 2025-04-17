@@ -13,7 +13,6 @@ import CreateCard from './Pages/CreateCard';
 import AccessDenied from './Pages/Error/AccessDenied';
 import PageNotFound from './Pages/Error/PageNotFound';
 import Home from './Pages/Home';
-import SendInvitation from './Pages/SendInvitation';
 import UserChangePassword from './Pages/User/UserChangePassword';
 import UserDelete from './Pages/User/UserDelete';
 import UserForgotPassword from './Pages/User/UserForgotPassword';
