@@ -43,8 +43,10 @@ export const addContact = asyncHandler(async (req, res, next) => {
 export const getContacts = asyncHandler(async (req, res, next) => {
 	const userId = req.user?._id;
 	const contacts = await contactModel.find({ user: userId }).sort({ createdAt: -1 });
+    console.log(contacts);
+	return res.status(200).json(contacts);
 
-	return res.status(200).json(new ApiResponse(200, "Contacts retrieved successfully", contacts));
+
 });
 
 export const updateContact = asyncHandler(async (req, res, next) => {
@@ -52,34 +54,53 @@ export const updateContact = asyncHandler(async (req, res, next) => {
 	const { name, phone, address, relation } = req.body;
 	const userId = req.user?._id;
 
-	if (!name || name.trim() === "") {
-		return next(new ApiError(400, "Name is required"));
+	// Create an update object with only the fields that were provided
+	const updateFields = {};
+
+	// Check and add fields only if they are provided
+	if (name !== undefined) {
+	  if (name.trim() === "") {
+		return next(new ApiError(400, "Name cannot be empty if provided"));
+	  }
+	  updateFields.name = name.trim();
 	}
-	if (phone && !/^\d{10}$/.test(phone)) {
-		return next(new ApiError(400, "Phone number must be exactly 10 digits"));
+
+	if (phone !== undefined) {
+	  if (phone.trim() !== "" && !/^\d{10}$/.test(phone.trim())) {
+		return next(new ApiError(400, "Phone number must be exactly 10 digits if provided"));
+	  }
+	  updateFields.phone = phone.trim() || undefined;
 	}
-	const validRelations = ["Family", "Friend", "Relative", "Other"];
-	if (!relation || !validRelations.includes(relation)) {
+
+	if (address !== undefined) {
+	  updateFields.address = address.trim() || undefined;
+	}
+
+	if (relation !== undefined) {
+	  const validRelations = ["Family", "Friend", "Relative", "Other"];
+	  if (relation.trim() !== "" && !validRelations.includes(relation.trim())) {
 		return next(new ApiError(400, "Please provide a valid relation (Family, Friend, Relative, Other)"));
+	  }
+	  updateFields.relation = relation.trim() || undefined;
+	}
+
+	// If no fields were provided for update
+	if (Object.keys(updateFields).length === 0) {
+	  return next(new ApiError(400, "At least one field must be provided for update"));
 	}
 
 	const contact = await contactModel.findOneAndUpdate(
-		{ _id: contactId, user: userId },
-		{
-			name: name.trim(),
-			phone: phone ? phone.trim() : undefined,
-			address: address ? address.trim() : undefined,
-			relation: relation ? relation.trim() : undefined,
-		},
-		{ new: true }
+	  { _id: contactId, user: userId },
+	  updateFields,
+	  { new: true }
 	);
 
 	if (!contact) {
-		return next(new ApiError(404, "Contact not found or not authorized"));
+	  return next(new ApiError(404, "Contact not found or not authorized"));
 	}
 
 	return res.status(200).json(new ApiResponse(200, "Contact updated successfully", contact));
-});
+  });
 
 export const deleteContact = asyncHandler(async (req, res, next) => {
 	const { contactId } = req.params;
