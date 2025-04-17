@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI } from "@google/genai";
-import { Send, Loader2, MessageCircle, X, Minimize2, Maximize2 } from "lucide-react";
+import { Loader2, Maximize2,MessageCircle, Minimize2, Send, X } from "lucide-react";
+import { useEffect, useRef,useState } from 'react';
 
 const ChatBot = () => {
   const [messages, setMessages] = useState([]);
