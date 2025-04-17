@@ -4,8 +4,8 @@ import { Route, Routes } from "react-router-dom";
 
 import UserProtector from './Components/UserProtector';
 import AboutUs from './Pages/AboutUs';
+import AddContact from './Pages/AddContact';
 import Cards from './Pages/Cards/Cards';
-import Main from './Pages/ChatBot'
 import PrivacyPolicy from './Pages/CompanyPolicy/PrivacyPolicy';
 import TermsAndConditions from './Pages/CompanyPolicy/TermsAndConditions';
 import ContactUs from './Pages/ContactUs';
@@ -73,7 +73,7 @@ function App() {
       <Route path="/cards" element={<Cards/>}/>
       <Route path="/templates/:type" element={<Cards/>}/>
       <Route path="/access-denied" element={<AccessDenied/>}/>
-      <Route path = "/send-invitation" element = {<SendInvitation/>}/>
+      <Route path = "user/add-contacts" element = {<UserProtector><AddContact/></UserProtector>}/>
       <Route path="*" element={<PageNotFound/>}/>
 
     </Routes>
