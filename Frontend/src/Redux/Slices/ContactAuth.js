@@ -22,13 +22,12 @@ export const addContact = createAsyncThunk("contacts/add-contact", async (data, 
 		// Set the proper headers for FormData with file upload
 		const headers = {
 			...config.headers,
-			'Content-Type': 'application/json',
+			"Content-Type": "application/json",
 		};
 		// Check if data exists
 		if (!data) {
 			return rejectWithValue({ message: "No data provided" });
 		}
-    console.log(data);
 
 		const response = await axiosInstance.post("/contacts/add-contact", data, {
 			headers,
@@ -39,11 +38,11 @@ export const addContact = createAsyncThunk("contacts/add-contact", async (data, 
 			return response.data;
 		}
 	} catch (error) {
-
 		toast.error(error.response?.data?.message || "Failed to add contact");
 		return rejectWithValue(error.response?.data || { message: error.message || "Something went wrong" });
 	}
 });
+
 export const getContacts = createAsyncThunk("contacts/get-contacts", async (_, { rejectWithValue }) => {
 	try {
 		const config = await prepareAuthRequest();
@@ -62,39 +61,36 @@ export const getContacts = createAsyncThunk("contacts/get-contacts", async (_, {
 		return rejectWithValue(error.response?.data || { message: error.message || "Something went wrong" });
 	}
 });
-export const updateContact = createAsyncThunk(
-	"contacts/update-contact",
-	async (data, { rejectWithValue }) => {
-	  try {
+
+export const updateContact = createAsyncThunk("contacts/update-contact", async (data, { rejectWithValue }) => {
+	try {
 		const config = await prepareAuthRequest();
 		if (!config) return rejectWithValue({ message: "Authentication failed" });
 
 		// Send data correctly to match backend expectations
 		const response = await axiosInstance.put(
-		  `/contacts/update-contact/${data.contactId}`,
-		  {
-			name: data.name,
-			mobileNumber: data.mobileNumber,
-			address: data.address,
-			relation: data.relation
-		  },
-		  {
-			headers: config.headers,
-		  }
+			`/contacts/update-contact/${data.contactId}`,
+			{
+				name: data.name,
+				mobileNumber: data.mobileNumber,
+				address: data.address,
+				relation: data.relation,
+			},
+			{
+				headers: config.headers,
+			}
 		);
 
 		if (response.status === 200) {
-		  toast.success("Contact updated successfully");
-		  return response.data;
+			toast.success("Contact updated successfully");
+			return response.data;
 		}
-	  } catch (error) {
+	} catch (error) {
 		toast.error(error.response?.data?.message || "Failed to update contact");
-		return rejectWithValue(
-		  error.response?.data || { message: error.message || "Something went wrong" }
-		);
-	  }
+		return rejectWithValue(error.response?.data || { message: error.message || "Something went wrong" });
 	}
-  );
+});
+
 export const deleteContact = createAsyncThunk("contacts/delete-contact", async (contactId, { rejectWithValue }) => {
 	try {
 		const config = await prepareAuthRequest();
@@ -106,15 +102,13 @@ export const deleteContact = createAsyncThunk("contacts/delete-contact", async (
 
 		if (response.status === 200) {
 			toast.success("Contact deleted successfully");
-			return response.data;
+			return { id: contactId, ...response.data };
 		}
 	} catch (error) {
 		toast.error(error.response?.data?.message || "Failed to delete contact");
 		return rejectWithValue(error.response?.data || { message: error.message || "Something went wrong" });
 	}
-}
-);
-
+});
 
 // Slice definition
 const contactSlice = createSlice({
@@ -122,7 +116,7 @@ const contactSlice = createSlice({
 	initialState,
 	reducers: {
 		clearContactState: (state) => {
-      state.contacts = [];
+			state.contact = [];
 			state.loading = false;
 			state.error = null;
 			state.success = false;
@@ -133,14 +127,20 @@ const contactSlice = createSlice({
 			.addCase(addContact.pending, (state) => {
 				state.loading = true;
 				state.error = null;
+				state.success = false;
 			})
-			.addCase(addContact.fulfilled, (state) => {
+			.addCase(addContact.fulfilled, (state, action) => {
 				state.loading = false;
 				state.success = true;
+
+				if (action.payload && action.payload.message) {
+					state.contact.push(action.payload.message);
+				}
 			})
 			.addCase(addContact.rejected, (state, action) => {
 				state.loading = false;
 				state.error = action.payload?.message || "Something went wrong";
+				state.success = false;
 			})
 			.addCase(getContacts.pending, (state) => {
 				state.loading = true;
@@ -148,8 +148,8 @@ const contactSlice = createSlice({
 			})
 			.addCase(getContacts.fulfilled, (state, action) => {
 				state.loading = false;
-
-				state.contact = action.payload|| [];
+				state.contact = action.payload || [];
+				state.error = null;
 			})
 			.addCase(getContacts.rejected, (state, action) => {
 				state.loading = false;
@@ -158,29 +158,44 @@ const contactSlice = createSlice({
 			.addCase(updateContact.pending, (state) => {
 				state.loading = true;
 				state.error = null;
+				state.success = false;
 			})
-			.addCase(updateContact.fulfilled, (state) => {
+			.addCase(updateContact.fulfilled, (state, action) => {
 				state.loading = false;
 				state.success = true;
+
+				// Update the specific contact in the array
+				if (action.payload && action.payload.message) {
+					const updatedContact = action.payload.message;
+					const index = state.contact.findIndex((c) => c._id === updatedContact._id);
+					if (index !== -1) {
+						state.contact[index] = updatedContact;
+					}
+				}
 			})
 			.addCase(updateContact.rejected, (state, action) => {
 				state.loading = false;
 				state.error = action.payload?.message || "Something went wrong";
+				state.success = false;
 			})
 			.addCase(deleteContact.pending, (state) => {
 				state.loading = true;
 				state.error = null;
+				state.success = false;
 			})
-			.addCase(deleteContact.fulfilled, (state) => {
+			.addCase(deleteContact.fulfilled, (state, action) => {
 				state.loading = false;
 				state.success = true;
+				// Remove the deleted contact from state
+				if (action.payload && action.payload.id) {
+					state.contact = state.contact.filter((c) => c._id !== action.payload.id);
+				}
 			})
 			.addCase(deleteContact.rejected, (state, action) => {
 				state.loading = false;
 				state.error = action.payload?.message || "Something went wrong";
 				state.success = false;
 			});
-
 	},
 });
 
