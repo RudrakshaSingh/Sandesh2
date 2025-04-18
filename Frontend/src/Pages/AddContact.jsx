@@ -1,28 +1,84 @@
-import {  Check, Edit, Info,  MapPin, Phone, Plus, Search,  Trash2,  Upload, User, Users, X } from "lucide-react";
-import React, { useEffect,useState } from "react";
+import { AlertTriangle,Check, Edit, Info, MapPin, Phone, Plus, RefreshCw, Search, Trash2, Upload, User, Users, X } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { addContact, deleteContact,getContacts, updateContact } from "../Redux/Slices/ContactAuth";
+import { addContact, deleteContact, getContacts, updateContact } from "../Redux/Slices/ContactAuth";
+
+// Delete Confirmation Modal Component
+const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, contactName }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop with blur effect */}
+      <div 
+        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+        onClick={onClose}
+      ></div>
+      
+      {/* Modal Panel */}
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 z-10 overflow-hidden animate-in fade-in zoom-in duration-300">
+        <div className="border-b border-gray-100 p-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="bg-red-100 p-2 rounded-full">
+                <AlertTriangle className="h-6 w-6 text-red-600" />
+              </div>
+              <h3 className="ml-3 text-lg font-medium text-gray-900">Delete Contact</h3>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 rounded-full p-1 hover:bg-gray-100 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+        
+        <div className="p-5">
+          <p className="text-gray-700">
+            Are you sure you want to delete <span className="font-medium">{contactName}</span>? 
+            This action cannot be undone.
+          </p>
+        </div>
+        
+        <div className="bg-gray-50 px-5 py-4 flex justify-end space-x-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 font-medium text-sm transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 font-medium text-sm transition-colors flex items-center"
+          >
+            <Trash2 className="w-4 h-4 mr-1.5" />
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 function AddContact() {
   const dispatch = useDispatch();
-  const { contact = [] } = useSelector((state) => state?.contactAuth);
+  const { contact = [], loading, error } = useSelector((state) => state?.contactAuth);
 
   // Fetch contacts on component mount
   useEffect(() => {
     dispatch(getContacts());
   }, [dispatch]);
 
-  console.log('contact', contact);
-
   const [contacts, setContacts] = useState([]);
 
   // Update contacts state when contact from redux changes
   useEffect(() => {
-    if (contact && contact.length > 0) {
-      setContacts(contact);
-      setFilteredContacts(contact);
-    }
+    setContacts(contact || []);
+    setFilteredContacts(contact || []);
   }, [contact]);
 
   const [formData, setFormData] = useState({
@@ -36,7 +92,17 @@ function AddContact() {
   const [filteredContacts, setFilteredContacts] = useState([]);
   const [editingContact, setEditingContact] = useState(null);
   const [expandedContact, setExpandedContact] = useState(null);
+  
+  // Add new state for the delete confirmation modal
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [contactToDelete, setContactToDelete] = useState(null);
+  
   const relationOptions = ["Friend", "Family", "Relative", "Other"];
+
+  // Handle refresh contacts
+  const handleRefreshContacts = () => {
+    dispatch(getContacts());
+  };
 
   // Handle search input change
   const handleSearchChange = (e) => {
@@ -87,17 +153,37 @@ function AddContact() {
     });
   };
 
-  // Handle delete contact
-  const handleDeleteContact = (contactId) => {
-    if (window.confirm('Are you sure you want to delete this contact?')) {
-      dispatch(deleteContact(contactId))
+  // Reset form
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      mobileNumber: '',
+      relation: '',
+      address: ''
+    });
+    setEditingContact(null);
+  };
+
+  // Handle opening delete modal
+  const handleDeleteClick = (contact) => {
+    setContactToDelete(contact);
+    setDeleteModalOpen(true);
+  };
+
+  // Handle actual delete confirmation
+  const handleConfirmDelete = () => {
+    if (contactToDelete) {
+      dispatch(deleteContact(contactToDelete._id))
+        .unwrap()
         .then(() => {
-          // After successful deletion, update the local state
-          setContacts(contacts.filter(c => c._id !== contactId));
-          setFilteredContacts(filteredContacts.filter(c => c._id !== contactId));
+          // Close the modal after successful deletion
+          setDeleteModalOpen(false);
+          setContactToDelete(null);
+          // Success feedback could be added here
         })
         .catch(error => {
           console.error('Error deleting contact:', error);
+          setDeleteModalOpen(false);
         });
     }
   };
@@ -120,21 +206,15 @@ function AddContact() {
       dispatch(updateContact({
         contactId: editingContact._id,
         name: formData.name,
-      mobileNumber: formData.mobileNumber,
-      relation: formData.relation,
-      address: formData.address
+        mobileNumber: formData.mobileNumber,
+        relation: formData.relation,
+        address: formData.address
       }))
+        .unwrap()
         .then(() => {
-          // Reset form and editing state
-          setFormData({
-            name: '',
-            mobileNumber: '',
-            relation: '',
-            address: ''
-          });
-          setEditingContact(null);
-          // Refetch contacts to update the list
-          dispatch(getContacts());
+          // Only reset form on success
+          resetForm();
+          // No need to call getContacts as the state is updated in the reducer
         })
         .catch(error => {
           console.error('Error updating contact:', error);
@@ -142,16 +222,11 @@ function AddContact() {
     } else {
       // Add new contact
       dispatch(addContact(formData))
+        .unwrap()
         .then(() => {
-          // Reset form
-          setFormData({
-            name: '',
-            mobileNumber: '',
-            relation: '',
-            address: ''
-          });
-          // Refetch contacts to update the list
-          dispatch(getContacts());
+          // Only reset form on success
+          resetForm();
+          // No need to call getContacts as the state is updated in the reducer
         })
         .catch(error => {
           console.error('Error adding contact:', error);
@@ -175,9 +250,19 @@ function AddContact() {
                 <Users className="w-6 h-6 text-orange-600 mr-2" />
                 <h2 className="text-xl font-bold text-gray-800">Added Contacts</h2>
               </div>
-              <span className="bg-orange-600 text-white text-sm font-medium rounded-full px-3 py-1">
-                {filteredContacts.length} of {contacts.length}
-              </span>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={handleRefreshContacts}
+                  className="bg-orange-100 text-orange-600 p-2 rounded-full hover:bg-orange-200 transition-colors"
+                  title="Refresh contacts"
+                  disabled={loading}
+                >
+                  <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+                </button>
+                <span className="bg-orange-600 text-white text-sm font-medium rounded-full px-3 py-1">
+                  {filteredContacts.length} of {contacts.length}
+                </span>
+              </div>
             </div>
 
             <div className="mt-2 flex">
@@ -234,7 +319,7 @@ function AddContact() {
                     <div className="flex justify-between items-center">
                       <div className="flex items-center">
                         <div className="bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-medium flex-shrink-0">
-                          {contact.name.split(' ').map(name => name[0]).join('')}
+                        {contact.name ? contact.name.split(' ').map(name => name[0]).join('') : '?'}
                         </div>
                         <div className="ml-3">
                           <p className="font-semibold text-gray-800">{contact.name}</p>
@@ -267,11 +352,11 @@ function AddContact() {
                           <Edit size={16} />
                         </button>
 
-                        {/* Delete Button */}
+                        {/* Delete Button - Updated to use modal */}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDeleteContact(contact._id);
+                            handleDeleteClick(contact);
                           }}
                           className="p-1 text-gray-500 hover:text-red-600 transition-colors rounded-full hover:bg-red-50"
                           title="Delete Contact"
@@ -432,8 +517,14 @@ function AddContact() {
                 <button
                   type="submit"
                   className="w-full bg-gradient-to-r from-orange-600 to-amber-600 text-white py-3 px-4 rounded-lg hover:from-orange-700 hover:to-amber-700 focus:ring-4 focus:ring-orange-300 font-medium transition-all flex items-center justify-center"
+                  disabled={loading}
                 >
-                  {editingContact ? (
+                  {loading ? (
+                    <span className="flex items-center">
+                      <RefreshCw className="w-5 h-5 mr-2 animate-spin" />
+                      {editingContact ? 'Updating...' : 'Adding...'}
+                    </span>
+                  ) : editingContact ? (
                     <>
                       <Check className="w-5 h-5 mr-2" />
                       Update Contact
@@ -448,6 +539,18 @@ function AddContact() {
               </div>
             </form>
 
+            {error && (
+              <div className="mt-4 p-3 bg-red-50 rounded-lg text-sm text-red-800 border border-red-100">
+                <div className="flex">
+                  <X className="w-5 h-5 mr-2 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium">Error</p>
+                    <p className="mt-1">{error}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="mt-6 p-4 bg-orange-50 rounded-lg text-sm text-orange-800 border border-orange-100">
               <div className="flex">
                 <Info className="w-5 h-5 mr-2 flex-shrink-0" />
@@ -460,6 +563,14 @@ function AddContact() {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        contactName={contactToDelete?.name || ''}
+      />
     </div>
   );
 }
