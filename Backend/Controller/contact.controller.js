@@ -51,7 +51,8 @@ export const getContacts = asyncHandler(async (req, res, next) => {
 
 export const updateContact = asyncHandler(async (req, res, next) => {
 	const { contactId } = req.params;
-	const { name, phone, address, relation } = req.body;
+	// Change mobileNumber to phone to match frontend naming
+	const { name, mobileNumber, address, relation } = req.body;
 	const userId = req.user?._id;
 
 	// Create an update object with only the fields that were provided
@@ -64,12 +65,14 @@ export const updateContact = asyncHandler(async (req, res, next) => {
 	  }
 	  updateFields.name = name.trim();
 	}
+   console.log('Mobile Number:', mobileNumber);
 
-	if (phone !== undefined) {
-	  if (phone.trim() !== "" && !/^\d{10}$/.test(phone.trim())) {
+	// Updated field name to match frontend's mobileNumber
+	if (mobileNumber !== undefined) {
+	  if (mobileNumber.trim() !== "" && !/^\d{10}$/.test(mobileNumber.trim())) {
 		return next(new ApiError(400, "Phone number must be exactly 10 digits if provided"));
 	  }
-	  updateFields.phone = phone.trim() || undefined;
+	  updateFields.mobileNumber = mobileNumber.trim() || undefined;
 	}
 
 	if (address !== undefined) {

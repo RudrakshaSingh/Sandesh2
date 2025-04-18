@@ -62,27 +62,39 @@ export const getContacts = createAsyncThunk("contacts/get-contacts", async (_, {
 		return rejectWithValue(error.response?.data || { message: error.message || "Something went wrong" });
 	}
 });
-export const updateContact = createAsyncThunk("contacts/update-contact", async (data, { rejectWithValue }) => {
-	try {
+export const updateContact = createAsyncThunk(
+	"contacts/update-contact",
+	async (data, { rejectWithValue }) => {
+	  try {
 		const config = await prepareAuthRequest();
 		if (!config) return rejectWithValue({ message: "Authentication failed" });
 
-		const response = await axiosInstance.put(`/contacts/update-contact/${data.contactId}`, data, {
+		// Send data correctly to match backend expectations
+		const response = await axiosInstance.put(
+		  `/contacts/update-contact/${data.contactId}`,
+		  {
+			name: data.name,
+			mobileNumber: data.mobileNumber,
+			address: data.address,
+			relation: data.relation
+		  },
+		  {
 			headers: config.headers,
-		});
+		  }
+		);
 
 		if (response.status === 200) {
-			toast.success("Contact updated successfully");
-			return response.data;
+		  toast.success("Contact updated successfully");
+		  return response.data;
 		}
-	}
-	catch (error) {
+	  } catch (error) {
 		toast.error(error.response?.data?.message || "Failed to update contact");
-		return rejectWithValue(error.response?.data || { message: error.message || "Something went wrong" });
+		return rejectWithValue(
+		  error.response?.data || { message: error.message || "Something went wrong" }
+		);
+	  }
 	}
-
-}
-);
+  );
 export const deleteContact = createAsyncThunk("contacts/delete-contact", async (contactId, { rejectWithValue }) => {
 	try {
 		const config = await prepareAuthRequest();
