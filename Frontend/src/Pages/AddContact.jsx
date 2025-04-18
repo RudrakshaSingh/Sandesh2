@@ -121,7 +121,10 @@ function AddContact() {
       // Update existing contact
       dispatch(updateContact({
         contactId: editingContact._id,
-        contactData: formData
+        name: formData.name,
+      mobileNumber: formData.mobileNumber,
+      relation: formData.relation,
+      address: formData.address
       }))
         .then(() => {
           // Reset form and editing state
