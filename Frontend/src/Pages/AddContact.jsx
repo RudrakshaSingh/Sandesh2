@@ -1,13 +1,11 @@
-import { Calendar, Check, CheckCircle, Edit, Info, Mail, MapPin, Phone, Plus, Search, Send, Trash, Trash2, Type, Upload, User, Users, X } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import {  Check, Edit, Info,  MapPin, Phone, Plus, Search,  Trash2,  Upload, User, Users, X } from "lucide-react";
+import React, { useEffect,useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 
-import { addContact, getContacts, updateContact, deleteContact } from "../Redux/Slices/ContactAuth";
+import { addContact, deleteContact,getContacts, updateContact } from "../Redux/Slices/ContactAuth";
 
 function AddContact() {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { contact = [] } = useSelector((state) => state?.contactAuth);
 
   // Fetch contacts on component mount

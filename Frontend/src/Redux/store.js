@@ -1,7 +1,7 @@
 import {configureStore} from '@reduxjs/toolkit'
 
-import UserAuth from './Slices/UserAuth';
 import ContactAuth from './Slices/ContactAuth';
+import UserAuth from './Slices/UserAuth';
 
 const store  = configureStore({
     reducer : {
